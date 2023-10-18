@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,10 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
-import com.example.mobile_moviescatalog2023.ui.theme.Gray40
-import com.example.mobile_moviescatalog2023.ui.theme.Gray5E
-import com.example.mobile_moviescatalog2023.ui.theme.Gray90
+import com.example.mobile_moviescatalog2023.ui.theme.*
 
 // Кнопка возврата
 @Composable
@@ -407,9 +405,38 @@ fun ContinueButton() {
     }
 }
 
+// Текст внизу экрана
+@Composable
+fun FooterRegistrationText(onLoginClick: ()->Unit) {
+    Box(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(1f),
+        contentAlignment = Alignment.Center
+    ) {
+        Row {
+            Text(
+                text = "Уже есть аккаунт? ",
+                fontSize = 17.sp,
+                color = GrayC4
+            )
+            Text(
+                text = "Войдите",
+                fontSize = 17.sp,
+                color = AccentColor,
+                modifier = Modifier
+                    .clickable (
+                        enabled = true,
+                        onClick = {onLoginClick()}
+                    )
+            )
+        }
+    }
+}
+
 // Экран регистрации
 @Composable
-fun RegistrationScreen(onBackButtonClick: ()->Unit) {
+fun RegistrationScreen(onBackButtonClick: ()->Unit, onLoginClick: () -> Unit) {
     val isFilledLogin = remember{ mutableStateOf(false) }
 
     Column {
@@ -421,5 +448,7 @@ fun RegistrationScreen(onBackButtonClick: ()->Unit) {
         Email()
         DateOfBirth()
         ContinueButton()
+        Spacer(modifier = Modifier.weight(1f))
+        FooterRegistrationText (onLoginClick)
     }
 }
