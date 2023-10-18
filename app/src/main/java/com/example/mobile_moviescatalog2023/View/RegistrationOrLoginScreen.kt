@@ -24,24 +24,6 @@ import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
 import com.example.mobile_moviescatalog2023.ui.theme.DarkGray750
 import com.example.mobile_moviescatalog2023.R
 
-// Кнопка возврата
-@Composable
-fun BackButton() {
-    Box(
-        modifier = Modifier
-            .height(40.dp)
-            .width(40.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Image (
-            painter = painterResource(id = R.drawable.back_button),
-            contentDescription = null,
-            modifier = Modifier
-                .size(12.dp)
-        )
-    }
-}
-
 // Заголовок Fильмус
 @Composable
 fun FilmusHeader() {
@@ -105,10 +87,10 @@ fun CinemaDescription() {
 
 // Кнопки входа и регистрации
 @Composable
-fun Buttons() {
+fun Buttons(onRegButtonClick: () -> Unit) {
     // Кнопка регистрации
     Button(
-        onClick = { /*TODO*/ },
+        onClick = { onRegButtonClick() },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 35.dp, 16.dp, 0.dp)
@@ -157,11 +139,11 @@ fun Buttons() {
 
 // Экран выбора регистрации или авторизации пользователя
 @Composable
-fun RegistrationOrLoginScreen() {
+fun RegistrationOrLoginScreen(onRegButtonClick: () -> Unit) {
     Column {
         FilmusHeader()
         MovieIcon()
         CinemaDescription()
-        Buttons()
+        Buttons(onRegButtonClick)
     }
 }
