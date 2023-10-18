@@ -24,24 +24,6 @@ import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
 import com.example.mobile_moviescatalog2023.ui.theme.DarkGray750
 import com.example.mobile_moviescatalog2023.R
 
-// Кнопка возврата
-@Composable
-fun BackButton() {
-    Box(
-        modifier = Modifier
-            .height(40.dp)
-            .width(40.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Image (
-            painter = painterResource(id = R.drawable.back_button),
-            contentDescription = null,
-            modifier = Modifier
-                .size(12.dp)
-        )
-    }
-}
-
 // Заголовок Fильмус
 @Composable
 fun FilmusHeader() {

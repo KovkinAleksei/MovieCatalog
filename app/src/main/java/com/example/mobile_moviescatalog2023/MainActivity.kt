@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import com.example.mobile_moviescatalog2023.View.RegistrationOrLoginScreen
+import com.example.mobile_moviescatalog2023.View.RegistrationScreen
 import com.example.mobile_moviescatalog2023.ui.theme.DarkGray750
 
 
@@ -39,7 +40,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    RegistrationOrLoginScreen()
+                  //  RegistrationOrLoginScreen()
+                    RegistrationScreen()
                 }
             }
         }
