@@ -229,7 +229,7 @@ fun Gender() {
 
 // Ввод логина пользователя
 @Composable
-fun Login() {
+fun Login(isFilled: MutableState<Boolean>) {
     // Надпись Логин
     Text(
         modifier = Modifier
@@ -250,7 +250,10 @@ fun Login() {
         value = login,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
-        onValueChange = {login = it},
+        onValueChange = {
+            login = it
+            isFilled.value = login.text.length > 0
+                        },
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -377,6 +380,7 @@ fun DateOfBirth() {
     }
 }
 
+// Кнопка Продолжить
 @Composable
 fun ContinueButton() {
     Button(
@@ -406,12 +410,14 @@ fun ContinueButton() {
 // Экран регистрации
 @Composable
 fun RegistrationScreen(onBackButtonClick: ()->Unit) {
+    val isFilledLogin = remember{ mutableStateOf(false) }
+
     Column {
         FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
         Name()
         Gender()
-        Login()
+        Login(isFilledLogin)
         Email()
         DateOfBirth()
         ContinueButton()
