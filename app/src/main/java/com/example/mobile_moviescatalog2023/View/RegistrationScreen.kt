@@ -2,10 +2,7 @@
 
 package com.example.mobile_moviescatalog2023.View
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -18,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -35,7 +31,7 @@ import com.example.mobile_moviescatalog2023.ui.theme.Gray90
 
 // Кнопка возврата
 @Composable
-fun BackButton() {
+fun BackButton(onBackButtonClick: () -> Unit) {
     Image (
         modifier = Modifier
             .height(30.dp)
@@ -43,21 +39,21 @@ fun BackButton() {
             .width(40.dp)
             .clickable(
                 enabled = true,
-                onClick = {}
+                onClick = { onBackButtonClick() }
             ),
-        painter = painterResource(id = R.drawable.back_button),
+        imageVector = ImageVector.vectorResource(id = R.drawable.back_arrow),
         contentDescription = null
     )
 }
 
 // Заголовок Fильмус с кнопкой возврата
 @Composable
-fun FilmusHeaderWithBackButton() {
+fun FilmusHeaderWithBackButton(onBackButtonClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(16.dp)
     ){
-        BackButton()
+        BackButton(onBackButtonClick)
 
         Text(
             modifier = Modifier
@@ -79,7 +75,7 @@ fun Header() {
     Text(
         modifier = Modifier
             .fillMaxWidth(1f),
-        text = "Регистрация",
+        text = stringResource(id = R.string.registration),
         style = TextStyle(
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
@@ -96,7 +92,7 @@ fun Name() {
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = "Имя",
+        text = stringResource(id = R.string.name),
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -148,7 +144,7 @@ fun Gender() {
     Text(
         modifier = Modifier
             .padding(16.dp, 16.dp, 0.dp, 0.dp),
-        text = "Пол",
+        text = stringResource(id = R.string.gender),
         style = TextStyle(
             color = Color.White,
             fontSize = 17.sp,
@@ -190,7 +186,7 @@ fun Gender() {
             )
         ) {
             Text(
-                text = "Мужчина",
+                text = stringResource(id = R.string.male),
                 style = TextStyle(
                     textAlign = TextAlign.Center,
                     color = if (maleSelected.value) Gray40 else Gray90,
@@ -219,7 +215,7 @@ fun Gender() {
             )
         ) {
             Text(
-                text = "Женщина",
+                text = stringResource(id = R.string.female),
                 style = TextStyle(
                     textAlign = TextAlign.Center,
                     color = if (maleSelected.value) Gray90 else Gray40,
@@ -238,7 +234,7 @@ fun Login() {
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = "Логин",
+        text = stringResource(id = R.string.login),
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -290,7 +286,7 @@ fun Email() {
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = "Электронная почта",
+        text = stringResource(id = R.string.email),
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -342,7 +338,7 @@ fun DateOfBirth() {
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = "Дата рождения",
+        text = stringResource(id = R.string.dateOfBirth),
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -379,8 +375,6 @@ fun DateOfBirth() {
                 )
         )
     }
-
-
 }
 
 @Composable
@@ -399,7 +393,7 @@ fun ContinueButton() {
         )
     ) {
         Text (
-            text = "Продолжить",
+            text = stringResource(id = R.string.continueButton),
             style = TextStyle(
                 color = Color.White,
                 fontWeight = FontWeight.SemiBold,
@@ -411,9 +405,9 @@ fun ContinueButton() {
 
 // Экран регистрации
 @Composable
-fun RegistrationScreen() {
+fun RegistrationScreen(onBackButtonClick: ()->Unit) {
     Column {
-        FilmusHeaderWithBackButton()
+        FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
         Name()
         Gender()
@@ -423,4 +417,3 @@ fun RegistrationScreen() {
         ContinueButton()
     }
 }
-//18:07
