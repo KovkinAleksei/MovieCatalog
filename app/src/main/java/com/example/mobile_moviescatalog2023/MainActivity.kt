@@ -29,22 +29,48 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "login_screen"
+                        startDestination = "reg_or_log_screen"
                     ) {
                         composable("reg_or_log_screen") {
-                            RegistrationOrLoginScreen {
-                                navController.navigate("registration_screen")
-                            }
+                            RegistrationOrLoginScreen (
+                                { navController.navigate("registration_screen") },
+                                {navController.navigate("login_screen")}
+                                )
                         }
+
                         composable("registration_screen") {
-                            RegistrationScreen{
-                                navController.navigate("reg_or_log_screen")
-                            }
+                            RegistrationScreen(
+                                {
+                                    navController.navigate("reg_or_log_screen") {
+                                        popUpTo("reg_or_log_screen") {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+
+                                {
+                                    navController.navigate("login_screen") {
+                                        popUpTo("reg_or_log_screen")
+                                    }
+                                }
+                            )
                         }
+
                         composable("login_screen") {
                             LoginScreen(
-                                {navController.navigate("reg_or_log_screen")},
-                                {navController.navigate("registration_screen")}
+                                {
+                                    navController.navigate("reg_or_log_screen") {
+                                        popUpTo("reg_or_log_screen") {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+
+                                {
+                                    navController.navigate("registration_screen") {
+                                        popUpTo("reg_or_log_screen")
+                                    }
+                                }
                             )
                         }
                     }
