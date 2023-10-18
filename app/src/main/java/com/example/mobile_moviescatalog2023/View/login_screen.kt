@@ -198,5 +198,4 @@ fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit) 
         Spacer(modifier = Modifier.weight(1f))
         FooterText(onRegistrationClick)
     }
-
 }
