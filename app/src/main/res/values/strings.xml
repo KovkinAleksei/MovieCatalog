@@ -13,7 +13,14 @@
     <string name="female">Женщина</string>
     <string name="login">Логин</string>
     <string name="email">Электронная почта</string>
-    <string name="dateOfBirth">Дата рождения</string>
+    <string name="date_of_birth">Дата рождения</string>
     <string name="continueButton">Продолжить</string>
     <string name="registration">Регистрация</string>
+    <string name="registrate">Зарегистрируйтесь</string>
+    <string name="still_no_account">Еще нет аккаунта? </string>
+    <string name="sign_in">Войти</string>
+    <string name="password">Пароль</string>
+    <string name="signing_in">Вход</string>
+    <string name="do_sign_in">Войдите</string>
+    <string name="already_have_account">Уже есть аккаунт?</string>
 </resources>

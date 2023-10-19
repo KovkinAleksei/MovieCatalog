@@ -339,7 +339,7 @@ fun DateOfBirth() {
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = stringResource(id = R.string.dateOfBirth),
+        text = stringResource(id = R.string.date_of_birth),
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -416,12 +416,12 @@ fun FooterRegistrationText(onLoginClick: ()->Unit) {
     ) {
         Row {
             Text(
-                text = "Уже есть аккаунт? ",
+                text = stringResource(id = R.string.already_have_account) + ' ',
                 fontSize = 17.sp,
                 color = GrayC4
             )
             Text(
-                text = "Войдите",
+                text = stringResource(id = R.string.do_sign_in),
                 fontSize = 17.sp,
                 color = AccentColor,
                 modifier = Modifier

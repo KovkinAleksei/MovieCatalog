@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +39,7 @@ fun LoginHeader() {
     Text(
         modifier = Modifier
             .fillMaxWidth(1f),
-        text = "Вход",
+        text = stringResource(id = R.string.signing_in),
         style = TextStyle(
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
@@ -55,7 +56,7 @@ fun Password(isFilledPassword: MutableState<Boolean>) {
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = "Пароль",
+        text = stringResource(id = R.string.password),
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -141,7 +142,7 @@ fun LoginButton(isEnabled: Boolean) {
         )
     ) {
         Text (
-            text = "Войти",
+            text = stringResource(id = R.string.sign_in),
             style = TextStyle(
                 color = if (isEnabled) Color.White else WhiteTransparent,
                 fontWeight = FontWeight.SemiBold,
@@ -162,12 +163,12 @@ fun FooterText(onRegistrationClick: ()->Unit) {
     ) {
         Row {
             Text(
-                text = "Еще нет аккаунта? ",
+                text = stringResource(id = R.string.still_no_account) + ' ',
                 fontSize = 17.sp,
                 color = GrayC4
             )
             Text(
-                text = "Зарегистрируйтесь",
+                text = stringResource(id = R.string.registrate),
                 fontSize = 17.sp,
                 color = AccentColor,
                 modifier = Modifier
