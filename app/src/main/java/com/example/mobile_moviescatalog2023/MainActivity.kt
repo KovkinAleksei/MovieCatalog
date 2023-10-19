@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mobile_moviescatalog2023.View.RegistrationOrLoginScreen
+import com.example.mobile_moviescatalog2023.View.RegistrationPasswordScreen
 import com.example.mobile_moviescatalog2023.View.RegistrationScreen
 
 
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = "screen_1"
                     ) {
                         composable("screen_1") {
-                            RegistrationOrLoginScreen {
+                            RegistrationPasswordScreen {
                                 navController.navigate("screen_2")
                             }
                         }
