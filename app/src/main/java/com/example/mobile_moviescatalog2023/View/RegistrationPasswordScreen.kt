@@ -33,8 +33,6 @@ import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
 import com.example.mobile_moviescatalog2023.ui.theme.Gray5E
 
-//11:52
-
 // Поле ввода пароля
 @Composable
 fun FillingPassword(
@@ -155,7 +153,7 @@ fun RegistrationButton() {
 
 // Текст внизу экрана
 @Composable
-fun FooterPasswordRegistrationText() {
+fun FooterPasswordRegistrationText(onSignInClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(16.dp)
@@ -169,13 +167,13 @@ fun FooterPasswordRegistrationText() {
                 color = Color.White
             )
             Text(
-                text = "Войти",
+                text = "Войдите",
                 fontSize = 17.sp,
                 color = AccentColor,
                 modifier = Modifier
                     .clickable (
                         enabled = true,
-                        onClick = {}
+                        onClick = {onSignInClick()}
                     )
             )
         }
@@ -184,7 +182,7 @@ fun FooterPasswordRegistrationText() {
 
 
 @Composable
-fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit)
+fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () -> Unit)
 {
 
     Column {
@@ -193,7 +191,7 @@ fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit)
         ChoosingPassword()
         RegistrationButton()
         Spacer(modifier = Modifier.weight(1f))
-        FooterPasswordRegistrationText()
+        FooterPasswordRegistrationText(onSignInClick)
     }
 
 }

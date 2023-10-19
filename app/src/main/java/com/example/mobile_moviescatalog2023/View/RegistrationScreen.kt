@@ -380,9 +380,9 @@ fun DateOfBirth() {
 
 // Кнопка Продолжить
 @Composable
-fun ContinueButton() {
+fun ContinueButton(onContinueButtonClick: () -> Unit) {
     Button(
-        onClick = { /*TODO*/ },
+        onClick = { onContinueButtonClick() },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 24.dp, 16.dp, 0.dp)
@@ -436,7 +436,11 @@ fun FooterRegistrationText(onLoginClick: ()->Unit) {
 
 // Экран регистрации
 @Composable
-fun RegistrationScreen(onBackButtonClick: ()->Unit, onLoginClick: () -> Unit) {
+fun RegistrationScreen(
+    onBackButtonClick: ()->Unit,
+    onLoginClick: () -> Unit,
+    onContinueButtonClick: ()->Unit
+) {
     val isFilledLogin = remember{ mutableStateOf(false) }
 
     Column {
@@ -447,7 +451,7 @@ fun RegistrationScreen(onBackButtonClick: ()->Unit, onLoginClick: () -> Unit) {
         Login(isFilledLogin)
         Email()
         DateOfBirth()
-        ContinueButton()
+        ContinueButton(onContinueButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterRegistrationText (onLoginClick)
     }

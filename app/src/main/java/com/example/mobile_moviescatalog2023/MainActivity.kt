@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mobile_moviescatalog2023.View.LoginScreen
 import com.example.mobile_moviescatalog2023.View.RegistrationOrLoginScreen
+import com.example.mobile_moviescatalog2023.View.RegistrationPasswordScreen
 import com.example.mobile_moviescatalog2023.View.RegistrationScreen
 
 
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = "reg_or_log_screen"
                     ) {
+                        // Экран выбора регистрации или авторизации
                         composable("reg_or_log_screen") {
                             RegistrationOrLoginScreen (
                                 { navController.navigate("registration_screen") },
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
                                 )
                         }
 
+                        // Первый экран регистрации
                         composable("registration_screen") {
                             RegistrationScreen(
                                 {
@@ -52,10 +55,15 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("login_screen") {
                                         popUpTo("reg_or_log_screen")
                                     }
+                                },
+
+                                {
+                                    navController.navigate("reg_password_screen")
                                 }
                             )
                         }
 
+                        // Экран авторизации
                         composable("login_screen") {
                             LoginScreen(
                                 {
@@ -71,6 +79,21 @@ class MainActivity : ComponentActivity() {
                                         popUpTo("reg_or_log_screen")
                                     }
                                 }
+                            )
+                        }
+
+                        // Второй экран регистрации
+                        composable("reg_password_screen") {
+                            RegistrationPasswordScreen(
+                                {
+                                    navController.popBackStack()
+                                },
+
+                                onSignInClick = {
+                                    navController.navigate("login_screen") {
+                                        popUpTo("reg_or_log_screen")
+                                    }
+                                },
                             )
                         }
                     }
