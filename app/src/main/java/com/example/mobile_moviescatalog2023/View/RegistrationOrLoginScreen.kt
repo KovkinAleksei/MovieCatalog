@@ -87,7 +87,7 @@ fun CinemaDescription() {
 
 // Кнопки входа и регистрации
 @Composable
-fun Buttons(onRegButtonClick: () -> Unit) {
+fun Buttons(onRegButtonClick: () -> Unit, onLoginButtonClick: () -> Unit) {
     // Кнопка регистрации
     Button(
         onClick = { onRegButtonClick() },
@@ -114,7 +114,7 @@ fun Buttons(onRegButtonClick: () -> Unit) {
 
     // Кнопка Войти
     Button(
-        onClick = { /*TODO*/ },
+        onClick = { onLoginButtonClick() },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 16.dp, 16.dp, 0.dp)
@@ -139,11 +139,14 @@ fun Buttons(onRegButtonClick: () -> Unit) {
 
 // Экран выбора регистрации или авторизации пользователя
 @Composable
-fun RegistrationOrLoginScreen(onRegButtonClick: () -> Unit) {
+fun RegistrationOrLoginScreen(
+    onRegButtonClick: () -> Unit,
+    onLoginButtonClick: () -> Unit,
+) {
     Column {
         FilmusHeader()
         MovieIcon()
         CinemaDescription()
-        Buttons(onRegButtonClick)
+        Buttons(onRegButtonClick, onLoginButtonClick)
     }
 }

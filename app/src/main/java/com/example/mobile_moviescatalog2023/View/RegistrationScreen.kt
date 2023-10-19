@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,10 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
-import com.example.mobile_moviescatalog2023.ui.theme.Gray40
-import com.example.mobile_moviescatalog2023.ui.theme.Gray5E
-import com.example.mobile_moviescatalog2023.ui.theme.Gray90
+import com.example.mobile_moviescatalog2023.ui.theme.*
 
 // Кнопка возврата
 @Composable
@@ -229,7 +227,7 @@ fun Gender() {
 
 // Ввод логина пользователя
 @Composable
-fun Login() {
+fun Login(isFilled: MutableState<Boolean>) {
     // Надпись Логин
     Text(
         modifier = Modifier
@@ -250,7 +248,10 @@ fun Login() {
         value = login,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
-        onValueChange = {login = it},
+        onValueChange = {
+            login = it
+            isFilled.value = login.text.length > 0
+                        },
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -338,7 +339,7 @@ fun DateOfBirth() {
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = stringResource(id = R.string.dateOfBirth),
+        text = stringResource(id = R.string.date_of_birth),
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -377,6 +378,7 @@ fun DateOfBirth() {
     }
 }
 
+// Кнопка Продолжить
 @Composable
 fun ContinueButton() {
     Button(
@@ -403,17 +405,50 @@ fun ContinueButton() {
     }
 }
 
+// Текст внизу экрана
+@Composable
+fun FooterRegistrationText(onLoginClick: ()->Unit) {
+    Box(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(1f),
+        contentAlignment = Alignment.Center
+    ) {
+        Row {
+            Text(
+                text = stringResource(id = R.string.already_have_account) + ' ',
+                fontSize = 17.sp,
+                color = GrayC4
+            )
+            Text(
+                text = stringResource(id = R.string.do_sign_in),
+                fontSize = 17.sp,
+                color = AccentColor,
+                modifier = Modifier
+                    .clickable (
+                        enabled = true,
+                        onClick = {onLoginClick()}
+                    )
+            )
+        }
+    }
+}
+
 // Экран регистрации
 @Composable
-fun RegistrationScreen(onBackButtonClick: ()->Unit) {
+fun RegistrationScreen(onBackButtonClick: ()->Unit, onLoginClick: () -> Unit) {
+    val isFilledLogin = remember{ mutableStateOf(false) }
+
     Column {
         FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
         Name()
         Gender()
-        Login()
+        Login(isFilledLogin)
         Email()
         DateOfBirth()
         ContinueButton()
+        Spacer(modifier = Modifier.weight(1f))
+        FooterRegistrationText (onLoginClick)
     }
 }

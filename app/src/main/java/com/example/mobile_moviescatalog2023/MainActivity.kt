@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mobile_moviescatalog2023.View.LoginScreen
 import com.example.mobile_moviescatalog2023.View.RegistrationOrLoginScreen
-import com.example.mobile_moviescatalog2023.View.RegistrationPasswordScreen
 import com.example.mobile_moviescatalog2023.View.RegistrationScreen
 
 
@@ -29,17 +29,49 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "screen_1"
+                        startDestination = "reg_or_log_screen"
                     ) {
-                        composable("screen_1") {
-                            RegistrationPasswordScreen {
-                                navController.navigate("screen_2")
-                            }
+                        composable("reg_or_log_screen") {
+                            RegistrationOrLoginScreen (
+                                { navController.navigate("registration_screen") },
+                                {navController.navigate("login_screen")}
+                                )
                         }
-                        composable("screen_2") {
-                            RegistrationScreen{
-                                navController.navigate("screen_1")
-                            }
+
+                        composable("registration_screen") {
+                            RegistrationScreen(
+                                {
+                                    navController.navigate("reg_or_log_screen") {
+                                        popUpTo("reg_or_log_screen") {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+
+                                {
+                                    navController.navigate("login_screen") {
+                                        popUpTo("reg_or_log_screen")
+                                    }
+                                }
+                            )
+                        }
+
+                        composable("login_screen") {
+                            LoginScreen(
+                                {
+                                    navController.navigate("reg_or_log_screen") {
+                                        popUpTo("reg_or_log_screen") {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+
+                                {
+                                    navController.navigate("registration_screen") {
+                                        popUpTo("reg_or_log_screen")
+                                    }
+                                }
+                            )
                         }
                     }
                 }
