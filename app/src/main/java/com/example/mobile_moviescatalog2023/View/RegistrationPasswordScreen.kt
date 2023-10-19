@@ -30,12 +30,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
-import com.example.mobile_moviescatalog2023.ui.theme.Gray5E
+import com.example.mobile_moviescatalog2023.ui.theme.*
 
 // Поле ввода пароля
 @Composable
 fun FillingPassword(
+    password: MutableState<TextFieldValue>,
     isFilledPassword: MutableState<Boolean>,
     label: String
 ) {
@@ -52,7 +52,6 @@ fun FillingPassword(
     )
 
     // Поле ввода пароля
-    val password = remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val showPassword = remember{mutableStateOf(false)}
 
@@ -110,30 +109,41 @@ fun FillingPassword(
 
 // Ввод и подтверждение пароля
 @Composable
-fun ChoosingPassword() {
+fun ChoosingPassword(isCorrect: MutableState<Boolean>) {
     val isFilledRegistratonPassword = remember{ mutableStateOf(false) }
 
+    val firstPassword = remember{ mutableStateOf(TextFieldValue("")) }
+    val secondPassword = remember{ mutableStateOf(TextFieldValue("")) }
+
     FillingPassword(
-        label = "Пароль",
+        password = firstPassword,
+        label = stringResource(id = R.string.password),
         isFilledPassword = isFilledRegistratonPassword
     )
 
     FillingPassword(
-        label = "Повторите пароль",
+        password = secondPassword,
+        label = stringResource(id = R.string.repeat_password),
         isFilledPassword = isFilledRegistratonPassword
     )
+
+    isCorrect.value = firstPassword.value.text == secondPassword.value.text && isFilledRegistratonPassword.value
 }
 
 // Кнопка Зарегистрироваться
 @Composable
-fun RegistrationButton() {
+fun RegistrationButton(isEnabled: Boolean) {
     Button(
+        enabled = isEnabled,
         onClick = { /*TODO*/ },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 24.dp, 16.dp, 0.dp)
             .height(50.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = AccentColor),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = AccentColor,
+            disabledBackgroundColor = AccentColorTransparent
+        ),
         shape = RoundedCornerShape(10.dp),
         elevation = ButtonDefaults.elevation(
             defaultElevation = 0.dp,
@@ -141,9 +151,9 @@ fun RegistrationButton() {
         )
     ) {
         Text (
-            text = "Зарегистрироваться",
+            text = stringResource(id = R.string.registration_last_button),
             style = TextStyle(
-                color = Color.White,
+                color = if (isEnabled) Color.White else WhiteTransparent,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp
             )
@@ -162,12 +172,12 @@ fun FooterPasswordRegistrationText(onSignInClick: () -> Unit) {
     ) {
         Row {
             Text(
-                text = "Уже есть аккаунт? ",
+                text = stringResource(id = R.string.already_have_account) + ' ',
                 fontSize = 17.sp,
                 color = Color.White
             )
             Text(
-                text = "Войдите",
+                text = stringResource(id = R.string.do_sign_in),
                 fontSize = 17.sp,
                 color = AccentColor,
                 modifier = Modifier
@@ -180,16 +190,17 @@ fun FooterPasswordRegistrationText(onSignInClick: () -> Unit) {
     }
 }
 
-
+// Экран выбора и подтверждения пароля
 @Composable
 fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () -> Unit)
 {
+    val isEnabledRegButton = remember{ mutableStateOf(false) }
 
     Column {
         FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
-        ChoosingPassword()
-        RegistrationButton()
+        ChoosingPassword(isEnabledRegButton)
+        RegistrationButton(isEnabledRegButton.value)
         Spacer(modifier = Modifier.weight(1f))
         FooterPasswordRegistrationText(onSignInClick)
     }

@@ -23,4 +23,6 @@
     <string name="signing_in">Вход</string>
     <string name="do_sign_in">Войдите</string>
     <string name="already_have_account">Уже есть аккаунт?</string>
+    <string name="registration_last_button">Зарегистрироваться</string>
+    <string name="repeat_password">Повторите пароль</string>
 </resources>
