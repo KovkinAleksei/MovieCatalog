@@ -2,6 +2,9 @@
 
 package com.example.mobile_moviescatalog2023.View
 
+import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.widget.DatePicker
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -26,6 +30,60 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.ui.theme.*
+import java.util.*
+
+// Экран регистрации
+@Composable
+fun RegistrationScreen(
+    onBackButtonClick: ()->Unit,
+    onLoginClick: () -> Unit,
+    onContinueButtonClick: ()->Unit
+) {
+    val isFilledLogin = remember{ mutableStateOf(false) }
+
+    Column {
+        FilmusHeaderWithBackButton(onBackButtonClick)
+        Header()
+        Name()
+        Gender()
+        Login(isFilledLogin)
+        Email()
+        DateOfBirth()
+        ContinueButton(onContinueButtonClick)
+        Spacer(modifier = Modifier.weight(1f))
+        FooterRegistrationText (onLoginClick)
+    }
+}
+
+// Календарь
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun Calendar(dateOfBirth: MutableState<String>, isOpened: Boolean) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+    calendar.time = Date()
+    val date = remember { mutableStateOf("") }
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            date.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+        },
+        year,
+        month,
+        day
+    )
+
+    if (isOpened)
+        datePickerDialog.show()
+
+    dateOfBirth.value = date.value.replace('/', '.')
+}
 
 // Кнопка возврата
 @Composable
@@ -335,6 +393,10 @@ fun Email() {
 // Ввод даты рождения пользователя
 @Composable
 fun DateOfBirth() {
+    val isOpenedCalendar = remember{mutableStateOf(false)}
+    val isClicked = remember{mutableStateOf(false)}
+    val dateOfBirth = remember { mutableStateOf("") }
+
     // Надпись Дата рождения
     Text(
         modifier = Modifier
@@ -360,6 +422,13 @@ fun DateOfBirth() {
             )
             .padding(12.dp)
     ){
+        Text(
+            text = dateOfBirth.value,
+            style = TextStyle(
+                color = Color.White,
+                fontSize = 17.sp
+            )
+        )
         Spacer(
             modifier = Modifier
                 .weight(1f)
@@ -372,9 +441,17 @@ fun DateOfBirth() {
             modifier = Modifier
                 .clickable (
                     enabled = true,
-                    onClick = {}
+                    onClick = {
+                        isOpenedCalendar.value = true
+                        isClicked.value = true
+                    }
                 )
         )
+    }
+
+    if (isOpenedCalendar.value) {
+        Calendar(dateOfBirth, isClicked.value)
+        isClicked.value = false
     }
 }
 
@@ -431,28 +508,5 @@ fun FooterRegistrationText(onLoginClick: ()->Unit) {
                     )
             )
         }
-    }
-}
-
-// Экран регистрации
-@Composable
-fun RegistrationScreen(
-    onBackButtonClick: ()->Unit,
-    onLoginClick: () -> Unit,
-    onContinueButtonClick: ()->Unit
-) {
-    val isFilledLogin = remember{ mutableStateOf(false) }
-
-    Column {
-        FilmusHeaderWithBackButton(onBackButtonClick)
-        Header()
-        Name()
-        Gender()
-        Login(isFilledLogin)
-        Email()
-        DateOfBirth()
-        ContinueButton(onContinueButtonClick)
-        Spacer(modifier = Modifier.weight(1f))
-        FooterRegistrationText (onLoginClick)
     }
 }
