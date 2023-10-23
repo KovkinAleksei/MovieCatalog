@@ -30,8 +30,35 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobile_moviescatalog2023.Repository.LoginRetrofit
 import com.example.mobile_moviescatalog2023.R
+import com.example.mobile_moviescatalog2023.Repository.LoginBody
+import com.example.mobile_moviescatalog2023.Repository.LoginTokenResponse
 import com.example.mobile_moviescatalog2023.ui.theme.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+// Экран авторизации пользователя
+@Composable
+fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit) {
+    val isFilled = remember{ mutableStateOf(false) }
+    val isFilledPassword = remember{ mutableStateOf(false) }
+
+
+    Column {
+        FilmusHeaderWithBackButton {
+            onBackButtonClick()
+        }
+
+        LoginHeader()
+        Login(isFilled)
+        Password(isFilledPassword)
+        LoginButton(isFilled.value && isFilledPassword.value)
+        Spacer(modifier = Modifier.weight(1f))
+        FooterText(onRegistrationClick)
+    }
+}
 
 // Заголовок экрана
 @Composable
@@ -126,7 +153,17 @@ fun Password(isFilledPassword: MutableState<Boolean>) {
 fun LoginButton(isEnabled: Boolean) {
     Button(
         enabled = isEnabled,
-        onClick = { /*TODO*/ },
+        onClick = {
+            val loginRetrofit = LoginRetrofit()
+            val api = loginRetrofit.CreateApiImplementation()
+            var tokenResponse: LoginTokenResponse? = null
+
+            CoroutineScope(Dispatchers.Default).launch {
+                val body = LoginBody(username = "string", password = "string")
+                val response = api.login(body = body)
+                tokenResponse = response
+            }
+        },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 24.dp, 16.dp, 0.dp)
@@ -178,25 +215,5 @@ fun FooterText(onRegistrationClick: ()->Unit) {
                     )
             )
         }
-    }
-}
-
-// Экран авторизации пользователя
-@Composable
-fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit) {
-    val isFilled = remember{ mutableStateOf(false) }
-    val isFilledPassword = remember{ mutableStateOf(false) }
-
-    Column {
-        FilmusHeaderWithBackButton {
-            onBackButtonClick()
-        }
-
-        LoginHeader()
-        Login(isFilled)
-        Password(isFilledPassword)
-        LoginButton(isFilled.value && isFilledPassword.value)
-        Spacer(modifier = Modifier.weight(1f))
-        FooterText(onRegistrationClick)
     }
 }

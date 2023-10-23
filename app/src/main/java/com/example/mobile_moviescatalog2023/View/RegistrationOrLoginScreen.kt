@@ -24,6 +24,20 @@ import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
 import com.example.mobile_moviescatalog2023.ui.theme.DarkGray750
 import com.example.mobile_moviescatalog2023.R
 
+// Экран выбора регистрации или авторизации пользователя
+@Composable
+fun RegistrationOrLoginScreen(
+    onRegButtonClick: () -> Unit,
+    onLoginButtonClick: () -> Unit,
+) {
+    Column {
+        FilmusHeader()
+        MovieIcon()
+        CinemaDescription()
+        Buttons(onRegButtonClick, onLoginButtonClick)
+    }
+}
+
 // Заголовок Fильмус
 @Composable
 fun FilmusHeader() {
@@ -134,19 +148,5 @@ fun Buttons(onRegButtonClick: () -> Unit, onLoginButtonClick: () -> Unit) {
                 fontSize = 17.sp
             )
         )
-    }
-}
-
-// Экран выбора регистрации или авторизации пользователя
-@Composable
-fun RegistrationOrLoginScreen(
-    onRegButtonClick: () -> Unit,
-    onLoginButtonClick: () -> Unit,
-) {
-    Column {
-        FilmusHeader()
-        MovieIcon()
-        CinemaDescription()
-        Buttons(onRegButtonClick, onLoginButtonClick)
     }
 }

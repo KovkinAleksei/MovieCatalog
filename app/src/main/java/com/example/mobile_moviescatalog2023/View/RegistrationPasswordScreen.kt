@@ -32,6 +32,22 @@ import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
+// Экран выбора и подтверждения пароля
+@Composable
+fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () -> Unit)
+{
+    val isEnabledRegButton = remember{ mutableStateOf(false) }
+
+    Column {
+        FilmusHeaderWithBackButton(onBackButtonClick)
+        Header()
+        ChoosingPassword(isEnabledRegButton)
+        RegistrationButton(isEnabledRegButton.value)
+        Spacer(modifier = Modifier.weight(1f))
+        FooterPasswordRegistrationText(onSignInClick)
+    }
+}
+
 // Поле ввода пароля
 @Composable
 fun FillingPassword(
@@ -188,21 +204,4 @@ fun FooterPasswordRegistrationText(onSignInClick: () -> Unit) {
             )
         }
     }
-}
-
-// Экран выбора и подтверждения пароля
-@Composable
-fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () -> Unit)
-{
-    val isEnabledRegButton = remember{ mutableStateOf(false) }
-
-    Column {
-        FilmusHeaderWithBackButton(onBackButtonClick)
-        Header()
-        ChoosingPassword(isEnabledRegButton)
-        RegistrationButton(isEnabledRegButton.value)
-        Spacer(modifier = Modifier.weight(1f))
-        FooterPasswordRegistrationText(onSignInClick)
-    }
-
 }
