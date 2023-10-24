@@ -23,7 +23,6 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             MobileMoviesCatalog2023Theme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background

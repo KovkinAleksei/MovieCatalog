@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
+import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import java.util.*
 
@@ -83,6 +84,11 @@ fun Calendar(dateOfBirth: MutableState<String>, isOpened: Boolean) {
         datePickerDialog.show()
 
     dateOfBirth.value = date.value.replace('/', '.')
+
+    if (date.value != "") {
+        val splitDate = date.value.split('/')
+        RegistrationData.birthDate = "${splitDate[2]}-${splitDate[1]}-${splitDate[0]}T13:14:47.274Z"
+    }
 }
 
 // Кнопка возврата
@@ -164,7 +170,10 @@ fun Name() {
         value = message,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
-        onValueChange = {message = it},
+        onValueChange = {
+            message = it
+            RegistrationData.name = it.text
+                        },
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -231,6 +240,7 @@ fun Gender() {
             onClick = {
                 if (!maleSelected.value)
                     maleSelected.value = !maleSelected.value
+                RegistrationData.gender = if (maleSelected.value) 0 else 1
                       },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
@@ -260,6 +270,7 @@ fun Gender() {
             onClick = {
                 if (maleSelected.value)
                     maleSelected.value = !maleSelected.value
+                RegistrationData.gender = if (maleSelected.value) 0 else 1
                       },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
@@ -309,6 +320,7 @@ fun Login(isFilled: MutableState<Boolean>) {
         onValueChange = {
             login = it
             isFilled.value = login.text.length > 0
+            RegistrationData.userName = it.text
                         },
         decorationBox = { innerTextField ->
             Row(
@@ -361,7 +373,10 @@ fun Email() {
         value = email,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
-        onValueChange = {email = it},
+        onValueChange = {
+            email = it
+            RegistrationData.email = it.text
+                        },
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -434,7 +449,6 @@ fun DateOfBirth() {
                 .weight(1f)
                 .fillMaxHeight()
         )
-
         Image (
             imageVector = ImageVector.vectorResource(id = R.drawable.date_icon),
             contentDescription = null,

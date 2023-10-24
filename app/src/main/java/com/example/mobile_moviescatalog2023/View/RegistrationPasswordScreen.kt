@@ -27,10 +27,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
+import com.example.mobile_moviescatalog2023.Repository.RegistrationBody
+import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
+import com.example.mobile_moviescatalog2023.Repository.TokenResponse
+import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
 import com.example.mobile_moviescatalog2023.ui.theme.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // Экран выбора и подтверждения пароля
 @Composable
@@ -144,6 +152,9 @@ fun ChoosingPassword(isCorrect: MutableState<Boolean>) {
     )
 
     isCorrect.value = firstPassword.value.text == secondPassword.value.text && isFilledRegistratonPassword.value
+
+    if (isCorrect.value)
+        RegistrationData.password = firstPassword.value.text
 }
 
 // Кнопка Зарегистрироваться
@@ -151,7 +162,23 @@ fun ChoosingPassword(isCorrect: MutableState<Boolean>) {
 fun RegistrationButton(isEnabled: Boolean) {
     Button(
         enabled = isEnabled,
-        onClick = { /*TODO*/ },
+        onClick = {
+            val api = RetrofitImplementation().registrationApiImplementation()
+            var tokenResponse: TokenResponse? = null
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = api.register(body = RegistrationBody(
+                    userName = RegistrationData.userName,
+                    name = RegistrationData.name,
+                    password = RegistrationData.password,
+                    email = RegistrationData.email,
+                    birthDate = RegistrationData.birthDate,
+                    gender = RegistrationData.gender
+                ))
+
+                tokenResponse = response
+            }
+        },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 24.dp, 16.dp, 0.dp)

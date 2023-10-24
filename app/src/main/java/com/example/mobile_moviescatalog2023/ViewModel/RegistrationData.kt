@@ -1,9 +1,6 @@
-package com.example.mobile_moviescatalog2023.Repository
+package com.example.mobile_moviescatalog2023.ViewModel
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-object RegistrationBody {
+object RegistrationData {
     var userName: String = ""
     var name: String = ""
     var password: String = ""

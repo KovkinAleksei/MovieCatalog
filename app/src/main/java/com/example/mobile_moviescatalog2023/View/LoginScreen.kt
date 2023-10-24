@@ -30,10 +30,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mobile_moviescatalog2023.Repository.LoginRetrofit
+import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.LoginBody
-import com.example.mobile_moviescatalog2023.Repository.LoginTokenResponse
+import com.example.mobile_moviescatalog2023.Repository.TokenResponse
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -154,9 +154,9 @@ fun LoginButton(isEnabled: Boolean) {
     Button(
         enabled = isEnabled,
         onClick = {
-            val loginRetrofit = LoginRetrofit()
-            val api = loginRetrofit.CreateApiImplementation()
-            var tokenResponse: LoginTokenResponse? = null
+            val loginRetrofit = RetrofitImplementation()
+            val api = loginRetrofit.loginApiImplementation()
+            var tokenResponse: TokenResponse? = null
 
             CoroutineScope(Dispatchers.Default).launch {
                 val body = LoginBody(username = "string", password = "string")

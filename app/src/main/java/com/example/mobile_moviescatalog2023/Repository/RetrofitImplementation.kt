@@ -11,7 +11,7 @@ import okhttp3.OkHttpClient
 import retrofit2.create
 import okhttp3.logging.HttpLoggingInterceptor
 
-class LoginRetrofit {
+class RetrofitImplementation {
     private val retrofit = Retrofit.Builder()
         .client(
             OkHttpClient.Builder()
@@ -23,7 +23,11 @@ class LoginRetrofit {
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .build()
 
-    fun CreateApiImplementation(): LoginApi {
+    fun loginApiImplementation(): LoginApi {
+        return retrofit.create()
+    }
+
+    fun registrationApiImplementation(): RegistrationApi {
         return retrofit.create()
     }
 }
