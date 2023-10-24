@@ -12,9 +12,6 @@ import retrofit2.create
 import okhttp3.logging.HttpLoggingInterceptor
 
 class LoginRetrofit {
-    private val json = Json
-    private val contentType = "application/json".toMediaType()
-
     private val retrofit = Retrofit.Builder()
         .client(
             OkHttpClient.Builder()
@@ -25,20 +22,8 @@ class LoginRetrofit {
         .baseUrl("https://react-midterm.kreosoft.space/api/")
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .build()
-    /*fun CreateRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .client(
-                OkHttpClient.Builder()
-                    .addInterceptor(HttpLoggingInterceptor().apply{
-                        level = HttpLoggingInterceptor.Level.BODY
-                    }).build()
-            )
-            .baseUrl("https://react-midterm.kreosoft.space/api/")
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-            .build()
-    }*/
 
-    fun CreateApiImplementation(/*retrofit: Retrofit*/): LoginApi {
+    fun CreateApiImplementation(): LoginApi {
         return retrofit.create()
     }
 }
