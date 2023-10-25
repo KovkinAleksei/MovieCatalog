@@ -1,4 +1,4 @@
-package com.example.mobile_moviescatalog2023.Repository
+package com.example.mobile_moviescatalog2023.Repository.Registration
 
 import kotlinx.serialization.Serializable
 

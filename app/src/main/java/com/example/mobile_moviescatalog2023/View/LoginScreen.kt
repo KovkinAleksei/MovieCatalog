@@ -32,8 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.Repository.LoginBody
+import com.example.mobile_moviescatalog2023.Repository.Login.LoginBody
 import com.example.mobile_moviescatalog2023.Repository.TokenResponse
+import com.example.mobile_moviescatalog2023.ViewModel.AuthorizationToken
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,10 +42,11 @@ import kotlinx.coroutines.launch
 
 // Экран авторизации пользователя
 @Composable
-fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit) {
+fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit, onLoginButtonClick: () -> Unit) {
     val isFilled = remember{ mutableStateOf(false) }
     val isFilledPassword = remember{ mutableStateOf(false) }
-
+    val username = remember{ mutableStateOf("") }
+    val password = remember{ mutableStateOf("") }
 
     Column {
         FilmusHeaderWithBackButton {
@@ -52,9 +54,9 @@ fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit) 
         }
 
         LoginHeader()
-        Login(isFilled)
-        Password(isFilledPassword)
-        LoginButton(isFilled.value && isFilledPassword.value)
+        Login(isFilled, username)
+        Password(isFilledPassword, password)
+        LoginButton(isFilled.value && isFilledPassword.value, onLoginButtonClick, username.value, password.value)
         Spacer(modifier = Modifier.weight(1f))
         FooterText(onRegistrationClick)
     }
@@ -78,7 +80,7 @@ fun LoginHeader() {
 
 // Ввод пароля
 @Composable
-fun Password(isFilledPassword: MutableState<Boolean>) {
+fun Password(isFilledPassword: MutableState<Boolean>, pass: MutableState<String>) {
     // Надпись Пароль
     Text(
         modifier = Modifier
@@ -103,6 +105,7 @@ fun Password(isFilledPassword: MutableState<Boolean>) {
         onValueChange = {
             password = it
             isFilledPassword.value = password.text.length > 0
+            pass.value = it.text
                         },
         visualTransformation = if (showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
         decorationBox = { innerTextField ->
@@ -150,7 +153,7 @@ fun Password(isFilledPassword: MutableState<Boolean>) {
 
 // Кнопка Войти
 @Composable
-fun LoginButton(isEnabled: Boolean) {
+fun LoginButton(isEnabled: Boolean, onLoginButtonClick: () -> Unit, username: String, password: String) {
     Button(
         enabled = isEnabled,
         onClick = {
@@ -159,10 +162,15 @@ fun LoginButton(isEnabled: Boolean) {
             var tokenResponse: TokenResponse? = null
 
             CoroutineScope(Dispatchers.Default).launch {
-                val body = LoginBody(username = "string", password = "string")
+                val body = LoginBody(username = username, password = password)
                 val response = api.login(body = body)
                 tokenResponse = response
+
+                if (tokenResponse != null)
+                    AuthorizationToken.token = tokenResponse!!.token
             }
+
+            onLoginButtonClick()
         },
         modifier = Modifier
             .fillMaxWidth(1f)

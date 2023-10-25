@@ -10,10 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.mobile_moviescatalog2023.View.LoginScreen
-import com.example.mobile_moviescatalog2023.View.RegistrationOrLoginScreen
-import com.example.mobile_moviescatalog2023.View.RegistrationPasswordScreen
-import com.example.mobile_moviescatalog2023.View.RegistrationScreen
+import com.example.mobile_moviescatalog2023.View.*
 
 
 class MainActivity : ComponentActivity() {
@@ -77,6 +74,14 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("registration_screen") {
                                         popUpTo("reg_or_log_screen")
                                     }
+                                },
+
+                                onLoginButtonClick = {
+                                    navController.navigate("main_screen") {
+                                        popUpTo("reg_or_log_screen") {
+                                            inclusive = true
+                                        }
+                                    }
                                 }
                             )
                         }
@@ -94,6 +99,11 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                             )
+                        }
+
+                        // Главный экран
+                        composable("main_screen") {
+                            MainScreen()
                         }
                     }
                 }

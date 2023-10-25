@@ -1,6 +1,6 @@
-package com.example.mobile_moviescatalog2023.Repository
+package com.example.mobile_moviescatalog2023.Repository.Registration
 
-import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
+import com.example.mobile_moviescatalog2023.Repository.TokenResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
 

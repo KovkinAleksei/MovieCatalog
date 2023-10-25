@@ -27,11 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.Repository.RegistrationBody
+import com.example.mobile_moviescatalog2023.Repository.Registration.RegistrationBody
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
 import com.example.mobile_moviescatalog2023.Repository.TokenResponse
 import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
@@ -174,7 +173,8 @@ fun RegistrationButton(isEnabled: Boolean) {
                     email = RegistrationData.email,
                     birthDate = RegistrationData.birthDate,
                     gender = RegistrationData.gender
-                ))
+                )
+                )
 
                 tokenResponse = response
             }

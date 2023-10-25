@@ -47,7 +47,7 @@ fun RegistrationScreen(
         Header()
         Name()
         Gender()
-        Login(isFilledLogin)
+        Login(isFilledLogin, mutableStateOf(""))
         Email()
         DateOfBirth()
         ContinueButton(onContinueButtonClick)
@@ -296,7 +296,7 @@ fun Gender() {
 
 // Ввод логина пользователя
 @Composable
-fun Login(isFilled: MutableState<Boolean>) {
+fun Login(isFilled: MutableState<Boolean>, username: MutableState<String>) {
     // Надпись Логин
     Text(
         modifier = Modifier
@@ -321,6 +321,7 @@ fun Login(isFilled: MutableState<Boolean>) {
             login = it
             isFilled.value = login.text.length > 0
             RegistrationData.userName = it.text
+            username.value = it.text
                         },
         decorationBox = { innerTextField ->
             Row(
