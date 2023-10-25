@@ -29,11 +29,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.Registration.RegistrationBody
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
 import com.example.mobile_moviescatalog2023.Repository.TokenResponse
 import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
+import com.example.mobile_moviescatalog2023.ViewModel.RegistrationPasswordViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,15 +43,15 @@ import kotlinx.coroutines.launch
 
 // Экран выбора и подтверждения пароля
 @Composable
-fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () -> Unit)
+fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () -> Unit, onRegistrationButtonClick: () -> Unit)
 {
-    val isEnabledRegButton = remember{ mutableStateOf(false) }
+    val viewModel: RegistrationPasswordViewModel = viewModel()
 
     Column {
         FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
-        ChoosingPassword(isEnabledRegButton)
-        RegistrationButton(isEnabledRegButton.value)
+        ChoosingPassword(viewModel)
+        RegistrationButton(viewModel, onRegistrationButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterPasswordRegistrationText(onSignInClick)
     }
@@ -132,7 +134,7 @@ fun FillingPassword(
 
 // Ввод и подтверждение пароля
 @Composable
-fun ChoosingPassword(isCorrect: MutableState<Boolean>) {
+fun ChoosingPassword(viewModel: RegistrationPasswordViewModel) {
     val isFilledRegistratonPassword = remember{ mutableStateOf(false) }
 
     val firstPassword = remember{ mutableStateOf(TextFieldValue("")) }
@@ -150,34 +152,20 @@ fun ChoosingPassword(isCorrect: MutableState<Boolean>) {
         isFilledPassword = isFilledRegistratonPassword
     )
 
-    isCorrect.value = firstPassword.value.text == secondPassword.value.text && isFilledRegistratonPassword.value
+    viewModel.isEnabledRegButton.value = firstPassword.value.text == secondPassword.value.text && isFilledRegistratonPassword.value
 
-    if (isCorrect.value)
-        RegistrationData.password = firstPassword.value.text
+    if (viewModel.isEnabledRegButton.value)
+        viewModel.password.value = firstPassword.value.text
 }
 
 // Кнопка Зарегистрироваться
 @Composable
-fun RegistrationButton(isEnabled: Boolean) {
+fun RegistrationButton(viewModel: RegistrationPasswordViewModel, onRegistrationButtonClick: () -> Unit) {
     Button(
-        enabled = isEnabled,
+        enabled = viewModel.isEnabledRegButton.value,
         onClick = {
-            val api = RetrofitImplementation().registrationApiImplementation()
-            var tokenResponse: TokenResponse? = null
-
-            CoroutineScope(Dispatchers.IO).launch {
-                val response = api.register(body = RegistrationBody(
-                    userName = RegistrationData.userName,
-                    name = RegistrationData.name,
-                    password = RegistrationData.password,
-                    email = RegistrationData.email,
-                    birthDate = RegistrationData.birthDate,
-                    gender = RegistrationData.gender
-                )
-                )
-
-                tokenResponse = response
-            }
+            viewModel.onRegistrateButtonClick()
+            onRegistrationButtonClick()
         },
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -196,7 +184,7 @@ fun RegistrationButton(isEnabled: Boolean) {
         Text (
             text = stringResource(id = R.string.registration_last_button),
             style = TextStyle(
-                color = if (isEnabled) Color.White else WhiteTransparent,
+                color = if (viewModel.isEnabledRegButton.value) Color.White else WhiteTransparent,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp
             )

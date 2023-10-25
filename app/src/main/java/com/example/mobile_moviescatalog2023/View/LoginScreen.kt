@@ -30,23 +30,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.Repository.Login.LoginBody
-import com.example.mobile_moviescatalog2023.Repository.TokenResponse
-import com.example.mobile_moviescatalog2023.ViewModel.AuthorizationToken
+import com.example.mobile_moviescatalog2023.ViewModel.LoginViewModel
+import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
 import com.example.mobile_moviescatalog2023.ui.theme.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 // Экран авторизации пользователя
 @Composable
 fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit, onLoginButtonClick: () -> Unit) {
-    val isFilled = remember{ mutableStateOf(false) }
-    val isFilledPassword = remember{ mutableStateOf(false) }
-    val username = remember{ mutableStateOf("") }
-    val password = remember{ mutableStateOf("") }
+    val viewModel: LoginViewModel = viewModel()
 
     Column {
         FilmusHeaderWithBackButton {
@@ -54,9 +47,9 @@ fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit, 
         }
 
         LoginHeader()
-        Login(isFilled, username)
-        Password(isFilledPassword, password)
-        LoginButton(isFilled.value && isFilledPassword.value, onLoginButtonClick, username.value, password.value)
+        LoginUser(viewModel)
+        Password(viewModel)
+        LoginButton(viewModel, onLoginButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterText(onRegistrationClick)
     }
@@ -78,9 +71,66 @@ fun LoginHeader() {
     )
 }
 
+// Ввод логина пользователя
+@Composable
+fun LoginUser(viewModel: LoginViewModel) {
+    // Надпись Логин
+    Text(
+        modifier = Modifier
+            .padding(16.dp, 15.dp, 0.dp, 0.dp),
+        text = stringResource(id = R.string.login),
+        style = TextStyle(
+            fontWeight = FontWeight.Medium,
+            fontSize = 17.sp,
+            color = Color.White
+        )
+    )
+
+    // Поле ввода логина
+    var login by remember{ mutableStateOf(TextFieldValue(""))}
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    BasicTextField(
+        value = login,
+        singleLine = true,
+        cursorBrush = SolidColor(Color.White),
+        onValueChange = {
+            login = it
+            viewModel.isFilledLogin.value = login.text.length > 0
+            RegistrationData.userName = it.text
+            viewModel.username.value = it.text
+        },
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .height(55.dp)
+                    .padding(16.dp, 8.dp, 16.dp, 0.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Gray5E,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(12.dp)
+            ){
+                innerTextField()
+            }
+        },
+        keyboardActions = KeyboardActions(
+            onDone = {
+                keyboardController?.hide()
+            }
+        ),
+        textStyle = TextStyle(
+            color = Color.White,
+            fontSize = 17.sp
+        )
+    )
+}
+
 // Ввод пароля
 @Composable
-fun Password(isFilledPassword: MutableState<Boolean>, pass: MutableState<String>) {
+fun Password(viewModel: LoginViewModel) {
     // Надпись Пароль
     Text(
         modifier = Modifier
@@ -104,8 +154,8 @@ fun Password(isFilledPassword: MutableState<Boolean>, pass: MutableState<String>
         cursorBrush = SolidColor(Color.White),
         onValueChange = {
             password = it
-            isFilledPassword.value = password.text.length > 0
-            pass.value = it.text
+            viewModel.isFilledPassword.value = password.text.length > 0
+            viewModel.password.value = it.text
                         },
         visualTransformation = if (showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
         decorationBox = { innerTextField ->
@@ -153,23 +203,13 @@ fun Password(isFilledPassword: MutableState<Boolean>, pass: MutableState<String>
 
 // Кнопка Войти
 @Composable
-fun LoginButton(isEnabled: Boolean, onLoginButtonClick: () -> Unit, username: String, password: String) {
+fun LoginButton(viewModel: LoginViewModel, onLoginButtonClick: () -> Unit) {
+    val isEnabled = viewModel.isFilledLogin.value && viewModel.isFilledPassword.value
+
     Button(
         enabled = isEnabled,
         onClick = {
-            val loginRetrofit = RetrofitImplementation()
-            val api = loginRetrofit.loginApiImplementation()
-            var tokenResponse: TokenResponse? = null
-
-            CoroutineScope(Dispatchers.Default).launch {
-                val body = LoginBody(username = username, password = password)
-                val response = api.login(body = body)
-                tokenResponse = response
-
-                if (tokenResponse != null)
-                    AuthorizationToken.token = tokenResponse!!.token
-            }
-
+            viewModel.login()
             onLoginButtonClick()
         },
         modifier = Modifier

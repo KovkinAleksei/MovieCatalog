@@ -28,8 +28,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
+import com.example.mobile_moviescatalog2023.ViewModel.RegistrationViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import java.util.*
 
@@ -40,17 +42,17 @@ fun RegistrationScreen(
     onLoginClick: () -> Unit,
     onContinueButtonClick: ()->Unit
 ) {
-    val isFilledLogin = remember{ mutableStateOf(false) }
+    val viewModel: RegistrationViewModel = viewModel()
 
     Column {
         FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
-        Name()
-        Gender()
-        Login(isFilledLogin, mutableStateOf(""))
-        Email()
-        DateOfBirth()
-        ContinueButton(onContinueButtonClick)
+        Name(viewModel)
+        Gender(viewModel)
+        Login(viewModel)
+        Email(viewModel)
+        DateOfBirth(viewModel)
+        ContinueButton(viewModel, onContinueButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterRegistrationText (onLoginClick)
     }
@@ -59,7 +61,7 @@ fun RegistrationScreen(
 // Календарь
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun Calendar(dateOfBirth: MutableState<String>, isOpened: Boolean) {
+fun Calendar(viewModel: RegistrationViewModel) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
@@ -80,14 +82,14 @@ fun Calendar(dateOfBirth: MutableState<String>, isOpened: Boolean) {
         day
     )
 
-    if (isOpened)
+    if (viewModel.isClicked.value)
         datePickerDialog.show()
 
-    dateOfBirth.value = date.value.replace('/', '.')
+    viewModel.dateOfBIrthDisplay.value = date.value.replace('/', '.')
 
     if (date.value != "") {
         val splitDate = date.value.split('/')
-        RegistrationData.birthDate = "${splitDate[2]}-${splitDate[1]}-${splitDate[0]}T13:14:47.274Z"
+        viewModel.birthDate.value = "${splitDate[2]}-${splitDate[1]}-${splitDate[0]}T13:14:47.274Z"
     }
 }
 
@@ -149,7 +151,7 @@ fun Header() {
 
 // Ввод имени пользователя
 @Composable
-fun Name() {
+fun Name(viewModel: RegistrationViewModel) {
     // Надпись Имя
     Text(
         modifier = Modifier
@@ -163,7 +165,7 @@ fun Name() {
     )
 
     // Поле ввода имени
-    var message by remember{ mutableStateOf(TextFieldValue(""))}
+    var message by remember{ mutableStateOf(TextFieldValue(viewModel.name.value))}
     val keyboardController = LocalSoftwareKeyboardController.current
 
     BasicTextField(
@@ -172,7 +174,8 @@ fun Name() {
         cursorBrush = SolidColor(Color.White),
         onValueChange = {
             message = it
-            RegistrationData.name = it.text
+            viewModel.name.value = it.text
+            viewModel.isFilledName.value = it.text.length > 0
                         },
         decorationBox = { innerTextField ->
             Row(
@@ -204,7 +207,7 @@ fun Name() {
 
 // Выбор пола пользователя
 @Composable
-fun Gender() {
+fun Gender(viewModel: RegistrationViewModel) {
     // Надпись пол
     Text(
         modifier = Modifier
@@ -218,7 +221,7 @@ fun Gender() {
     )
 
     // Кнопки
-    val maleSelected = remember{ mutableStateOf(true) }
+    //val maleSelected = remember{ mutableStateOf(true) }
 
     Row(
         modifier = Modifier
@@ -238,13 +241,12 @@ fun Gender() {
                 .fillMaxHeight(1f)
                 .padding(1.dp, 0.dp, 0.dp, 0.dp),
             onClick = {
-                if (!maleSelected.value)
-                    maleSelected.value = !maleSelected.value
-                RegistrationData.gender = if (maleSelected.value) 0 else 1
+                if (!viewModel.maleSelected.value)
+                    viewModel.maleSelected.value = !viewModel.maleSelected.value
                       },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (maleSelected.value) Color.White else Gray40
+                backgroundColor = if (viewModel.maleSelected.value) Color.White else Gray40
             ),
             elevation = ButtonDefaults.elevation(
                 defaultElevation = 0.dp,
@@ -255,7 +257,7 @@ fun Gender() {
                 text = stringResource(id = R.string.male),
                 style = TextStyle(
                     textAlign = TextAlign.Center,
-                    color = if (maleSelected.value) Gray40 else Gray90,
+                    color = if (viewModel.maleSelected.value) Gray40 else Gray90,
                     fontSize = 17.sp
                 )
             )
@@ -268,13 +270,12 @@ fun Gender() {
                 .fillMaxHeight(1f)
                 .padding(0.dp, 0.dp, 1.dp, 0.dp),
             onClick = {
-                if (maleSelected.value)
-                    maleSelected.value = !maleSelected.value
-                RegistrationData.gender = if (maleSelected.value) 0 else 1
+                if (viewModel.maleSelected.value)
+                    viewModel.maleSelected.value = !viewModel.maleSelected.value
                       },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (maleSelected.value) Gray40 else Color.White
+                backgroundColor = if (viewModel.maleSelected.value) Gray40 else Color.White
             ),
             elevation = ButtonDefaults.elevation(
                 defaultElevation = 0.dp,
@@ -285,18 +286,17 @@ fun Gender() {
                 text = stringResource(id = R.string.female),
                 style = TextStyle(
                     textAlign = TextAlign.Center,
-                    color = if (maleSelected.value) Gray90 else Gray40,
+                    color = if (viewModel.maleSelected.value) Gray90 else Gray40,
                     fontSize = 17.sp
                 )
             )
         }
     }
-
 }
 
 // Ввод логина пользователя
 @Composable
-fun Login(isFilled: MutableState<Boolean>, username: MutableState<String>) {
+fun Login(viewModel: RegistrationViewModel) {
     // Надпись Логин
     Text(
         modifier = Modifier
@@ -319,9 +319,8 @@ fun Login(isFilled: MutableState<Boolean>, username: MutableState<String>) {
         cursorBrush = SolidColor(Color.White),
         onValueChange = {
             login = it
-            isFilled.value = login.text.length > 0
-            RegistrationData.userName = it.text
-            username.value = it.text
+            viewModel.isFilledLogin.value = login.text.length > 0
+            viewModel.userName.value = it.text
                         },
         decorationBox = { innerTextField ->
             Row(
@@ -353,7 +352,7 @@ fun Login(isFilled: MutableState<Boolean>, username: MutableState<String>) {
 
 // Ввод электронной почты пользователя
 @Composable
-fun Email() {
+fun Email(viewModel: RegistrationViewModel) {
     // Надпись Электронная почта
     Text(
         modifier = Modifier
@@ -367,7 +366,7 @@ fun Email() {
     )
 
     // Поле ввода электронной почты
-    var email by remember{ mutableStateOf(TextFieldValue(""))}
+    var email by remember{ viewModel.email }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     BasicTextField(
@@ -376,7 +375,8 @@ fun Email() {
         cursorBrush = SolidColor(Color.White),
         onValueChange = {
             email = it
-            RegistrationData.email = it.text
+            viewModel.email.value = it
+            viewModel.isFilledEmail.value = it.length > 0
                         },
         decorationBox = { innerTextField ->
             Row(
@@ -408,11 +408,7 @@ fun Email() {
 
 // Ввод даты рождения пользователя
 @Composable
-fun DateOfBirth() {
-    val isOpenedCalendar = remember{mutableStateOf(false)}
-    val isClicked = remember{mutableStateOf(false)}
-    val dateOfBirth = remember { mutableStateOf("") }
-
+fun DateOfBirth(viewModel: RegistrationViewModel) {
     // Надпись Дата рождения
     Text(
         modifier = Modifier
@@ -439,7 +435,7 @@ fun DateOfBirth() {
             .padding(12.dp)
     ){
         Text(
-            text = dateOfBirth.value,
+            text = viewModel.dateOfBIrthDisplay.value,
             style = TextStyle(
                 color = Color.White,
                 fontSize = 17.sp
@@ -457,29 +453,37 @@ fun DateOfBirth() {
                 .clickable (
                     enabled = true,
                     onClick = {
-                        isOpenedCalendar.value = true
-                        isClicked.value = true
+                        viewModel.isOpenedCalendar.value = true
+                        viewModel.isClicked.value = true
                     }
                 )
         )
     }
 
-    if (isOpenedCalendar.value) {
-        Calendar(dateOfBirth, isClicked.value)
-        isClicked.value = false
+    if (viewModel.isOpenedCalendar.value) {
+        Calendar(viewModel)
+        viewModel.isClicked.value = false
     }
 }
 
 // Кнопка Продолжить
 @Composable
-fun ContinueButton(onContinueButtonClick: () -> Unit) {
+fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -> Unit) {
+    val isEnabled = viewModel.isFilledLogin.value && viewModel.isFilledName.value && viewModel.isFilledEmail.value && (viewModel.birthDate.value.length > 0)
     Button(
-        onClick = { onContinueButtonClick() },
+        enabled = isEnabled,
+        onClick = {
+            viewModel.continueButtonClick()
+            onContinueButtonClick()
+                  },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 24.dp, 16.dp, 0.dp)
             .height(50.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = AccentColor),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = AccentColor,
+            disabledBackgroundColor = AccentColorTransparent
+        ),
         shape = RoundedCornerShape(10.dp),
         elevation = ButtonDefaults.elevation(
             defaultElevation = 0.dp,
@@ -489,7 +493,7 @@ fun ContinueButton(onContinueButtonClick: () -> Unit) {
         Text (
             text = stringResource(id = R.string.continueButton),
             style = TextStyle(
-                color = Color.White,
+                color = if(isEnabled) Color.White else WhiteTransparent,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp
             )

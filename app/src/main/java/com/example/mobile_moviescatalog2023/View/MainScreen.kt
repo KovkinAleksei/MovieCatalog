@@ -9,20 +9,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mobile_moviescatalog2023.Domain.Genre
+import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.Domain.Movie
-import com.example.mobile_moviescatalog2023.Domain.Review
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.Movies.MoviesResponse
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// Главный экран
 @Composable
 fun MainScreen() {
     val moviesResponse = remember{ mutableStateOf<List<Movie>?>(null) }
@@ -54,25 +55,62 @@ fun MainScreen() {
             }
         }
     }
-
 }
 
+// Оценка фильма по всем отзывам
+@Composable
+fun Rating(movie: Movie) {
+    val rate = getRating(movie)
+    val rateNum = rate.replace(',', '.').toFloat()
+
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .clip(shape = RoundedCornerShape(4.dp))
+            .background(
+                when {
+                    rateNum >= 9 -> darkGreen
+                    rateNum >= 8 -> lightGreen
+                    rateNum >= 6 -> yellow
+                    rateNum >= 4 -> orange
+                    rateNum >= 3 -> fire
+                    else -> darkRed
+                }
+            )
+    ){
+        Text(
+            modifier = Modifier
+                .padding(4.dp, 0.dp),
+            text = rate,
+            style = TextStyle (
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            ),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+// Элемент списка фильмов
 @Composable
 fun MovieElement(movie: Movie) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp, 0.dp, 16.dp, 16.dp),
-        backgroundColor = DarkGray700
+            .padding(16.dp, 0.dp, 16.dp, 16.dp)
+            .background(DarkGray700)
     ) {
         Row {
-            Image(
-                painter = painterResource(id = R.drawable.media3),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(10.dp))
-                    .width(100.dp)
-            )
+            Box {
+                AsyncImage(
+                    model = movie.poster,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(shape = RoundedCornerShape(4.dp))
+                )
+
+                Rating(movie)
+            }
             Column(
                 modifier = Modifier
                     .padding(10.dp, 0.dp)
@@ -135,6 +173,7 @@ fun MovieElement(movie: Movie) {
     }
 }
 
+// Подпись жанра фильма
 @Composable
 fun GenreLabel(genre: String) {
     Box (
@@ -155,6 +194,7 @@ fun GenreLabel(genre: String) {
         )
     }
 }
+
 // Карусель постеров фильмов
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -203,7 +243,7 @@ fun FilmsPager() {
 @Composable
 fun Catalogue() {
     Text(
-        text = "Каталог",
+        text = stringResource(id = R.string.catalogue),
         style = TextStyle(
             color = Color.White,
             fontSize = 26.sp,
@@ -229,4 +269,11 @@ fun getMovies(moviesList: MutableState<List<Movie>?>) {
             moviesList.value = movieResponse!!.movies
         }
     }
+}
+
+// Подсчёт оценки фильма
+fun getRating(movie: Movie): String {
+    val avg = movie.reviews.sumOf { it -> it.rating } / movie.reviews.size.toFloat()
+
+    return String.format("%.1f", avg)
 }

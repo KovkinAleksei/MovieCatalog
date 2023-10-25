@@ -5,12 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.*
 import androidx.compose.ui.Modifier
-import com.example.mobile_moviescatalog2023.ui.theme.MobileMoviesCatalog2023Theme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mobile_moviescatalog2023.View.*
+import com.example.mobile_moviescatalog2023.ui.theme.*
 
 
 class MainActivity : ComponentActivity() {
@@ -26,35 +26,39 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "reg_or_log_screen"
+                        startDestination = regOrLogScreen
                     ) {
                         // Экран выбора регистрации или авторизации
-                        composable("reg_or_log_screen") {
+                        composable(regOrLogScreen){
                             RegistrationOrLoginScreen (
-                                { navController.navigate("registration_screen") },
-                                {navController.navigate("login_screen")}
+                                onRegButtonClick = {
+                                    navController.navigate(registrationScreen)
+                                },
+
+                                onLoginButtonClick = {
+                                    navController.navigate(loginScreen)}
                                 )
                         }
 
                         // Первый экран регистрации
-                        composable("registration_screen") {
+                        composable(registrationScreen) {
                             RegistrationScreen(
-                                {
-                                    navController.navigate("reg_or_log_screen") {
-                                        popUpTo("reg_or_log_screen") {
+                                onBackButtonClick = {
+                                    navController.navigate(regOrLogScreen) {
+                                        popUpTo(regOrLogScreen) {
                                             inclusive = true
                                         }
                                     }
                                 },
 
-                                {
-                                    navController.navigate("login_screen") {
-                                        popUpTo("reg_or_log_screen")
+                                onLoginClick = {
+                                    navController.navigate(loginScreen) {
+                                        popUpTo(regOrLogScreen)
                                     }
                                 },
 
-                                {
-                                    navController.navigate("reg_password_screen")
+                                onContinueButtonClick = {
+                                    navController.navigate(registrationPasswordScreen)
                                 }
                             )
                         }
@@ -62,23 +66,23 @@ class MainActivity : ComponentActivity() {
                         // Экран авторизации
                         composable("login_screen") {
                             LoginScreen(
-                                {
-                                    navController.navigate("reg_or_log_screen") {
-                                        popUpTo("reg_or_log_screen") {
+                                onBackButtonClick = {
+                                    navController.navigate(regOrLogScreen) {
+                                        popUpTo(regOrLogScreen) {
                                             inclusive = true
                                         }
                                     }
                                 },
 
-                                {
-                                    navController.navigate("registration_screen") {
-                                        popUpTo("reg_or_log_screen")
+                                onRegistrationClick = {
+                                    navController.navigate(registrationScreen) {
+                                        popUpTo(regOrLogScreen)
                                     }
                                 },
 
                                 onLoginButtonClick = {
-                                    navController.navigate("main_screen") {
-                                        popUpTo("reg_or_log_screen") {
+                                    navController.navigate(mainScreen) {
+                                        popUpTo(regOrLogScreen) {
                                             inclusive = true
                                         }
                                     }
@@ -87,22 +91,30 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // Второй экран регистрации
-                        composable("reg_password_screen") {
+                        composable(registrationPasswordScreen) {
                             RegistrationPasswordScreen(
-                                {
+                                onBackButtonClick = {
                                     navController.popBackStack()
                                 },
 
                                 onSignInClick = {
-                                    navController.navigate("login_screen") {
-                                        popUpTo("reg_or_log_screen")
+                                    navController.navigate(loginScreen) {
+                                        popUpTo(regOrLogScreen)
                                     }
                                 },
+
+                                onRegistrationButtonClick = {
+                                    navController.navigate(mainScreen) {
+                                        popUpTo(regOrLogScreen) {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
                             )
                         }
 
                         // Главный экран
-                        composable("main_screen") {
+                        composable(mainScreen) {
                             MainScreen()
                         }
                     }
