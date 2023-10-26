@@ -3,6 +3,7 @@
 package com.example.mobile_moviescatalog2023.View
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -51,15 +53,32 @@ fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () 
         FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
         ChoosingPassword(viewModel)
+        if (viewModel.errorMessage.value != "")
+            PasswordErrorMessage(viewModel)
         RegistrationButton(viewModel, onRegistrationButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterPasswordRegistrationText(onSignInClick)
     }
 }
 
+// Вывод ошибки
+@Composable
+fun PasswordErrorMessage(viewModel: RegistrationPasswordViewModel) {
+    Text(
+        text = viewModel.errorMessage.value,
+        style = TextStyle(
+            fontSize = 16.sp,
+            color = errorColor
+        ),
+        modifier = Modifier
+            .padding(16.dp, 4.dp, 0.dp, 0.dp)
+    )
+}
+
 // Поле ввода пароля
 @Composable
 fun FillingPassword(
+    viewModel: RegistrationPasswordViewModel,
     password: MutableState<TextFieldValue>,
     isFilledPassword: MutableState<Boolean>,
     label: String
@@ -87,6 +106,7 @@ fun FillingPassword(
         onValueChange = {
             password.value = it
             isFilledPassword.value = password.value.text.length > 0
+            viewModel.errorMessage.value = ""
         },
         visualTransformation = if (showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
         decorationBox = { innerTextField ->
@@ -95,9 +115,11 @@ fun FillingPassword(
                     .fillMaxWidth(1f)
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
-                        color = Gray5E,
+                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
@@ -141,12 +163,14 @@ fun ChoosingPassword(viewModel: RegistrationPasswordViewModel) {
     val secondPassword = remember{ mutableStateOf(TextFieldValue("")) }
 
     FillingPassword(
+        viewModel =  viewModel,
         password = firstPassword,
         label = stringResource(id = R.string.password),
         isFilledPassword = isFilledRegistratonPassword
     )
 
     FillingPassword(
+        viewModel = viewModel,
         password = secondPassword,
         label = stringResource(id = R.string.repeat_password),
         isFilledPassword = isFilledRegistratonPassword
@@ -165,7 +189,6 @@ fun RegistrationButton(viewModel: RegistrationPasswordViewModel, onRegistrationB
         enabled = viewModel.isEnabledRegButton.value,
         onClick = {
             viewModel.onRegistrateButtonClick()
-            onRegistrationButtonClick()
         },
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -189,6 +212,11 @@ fun RegistrationButton(viewModel: RegistrationPasswordViewModel, onRegistrationB
                 fontSize = 17.sp
             )
         )
+    }
+
+    if (viewModel.isRegistrationAvailable.value) {
+        onRegistrationButtonClick()
+        viewModel.isRegistrationAvailable.value = false
     }
 }
 
