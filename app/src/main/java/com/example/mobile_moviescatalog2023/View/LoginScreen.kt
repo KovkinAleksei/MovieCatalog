@@ -51,7 +51,8 @@ fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit, 
         LoginHeader()
         LoginUser(viewModel)
         Password(viewModel)
-        ErrorMessage(viewModel)
+        if (viewModel.errorMessage.value != "")
+            ErrorMessage(viewModel)
         LoginButton(viewModel, onLoginButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterText(onRegistrationClick)
@@ -236,7 +237,7 @@ fun LoginButton(viewModel: LoginViewModel, onLoginButtonClick: () -> Unit) {
         },
         modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(16.dp, 18.dp, 16.dp, 0.dp)
+            .padding(16.dp, 16.dp, 16.dp, 0.dp)
             .height(50.dp),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = AccentColor,

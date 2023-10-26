@@ -1,5 +1,6 @@
 package com.example.mobile_moviescatalog2023.ViewModel
 
+import android.util.Patterns
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 
@@ -15,8 +16,19 @@ class RegistrationViewModel: ViewModel() {
     val dateOfBIrthDisplay = mutableStateOf("")
     val birthDate = mutableStateOf("")
     val userName = mutableStateOf("")
+    val errorMessage = mutableStateOf("")
+
+    private fun validateEmail() {
+        errorMessage.value =
+            if (!Patterns.EMAIL_ADDRESS.matcher(email.value).matches())
+                "Email введён некорректно"
+            else
+                ""
+    }
 
     fun continueButtonClick(){
+        validateEmail()
+
         RegistrationData.birthDate=birthDate.value
         RegistrationData.gender= if (maleSelected.value) 0 else 1
         RegistrationData.userName=userName.value

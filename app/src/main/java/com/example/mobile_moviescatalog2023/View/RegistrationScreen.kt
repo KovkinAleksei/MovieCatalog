@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -52,6 +53,8 @@ fun RegistrationScreen(
         Login(viewModel)
         Email(viewModel)
         DateOfBirth(viewModel)
+        if (viewModel.errorMessage.value != "")
+            EmailErrorMessage(viewModel)
         ContinueButton(viewModel, onContinueButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterRegistrationText (onLoginClick)
@@ -87,12 +90,17 @@ fun Calendar(viewModel: RegistrationViewModel) {
         viewModel.isClicked.value = false
     }
 
-
-    viewModel.dateOfBIrthDisplay.value = date.value.replace('/', '.')
+    val birthDate = date.value.replace('/', '.')
 
     if (date.value != "") {
         val splitDate = date.value.split('/')
-        viewModel.birthDate.value = "${splitDate[2]}-${splitDate[1]}-${splitDate[0]}T13:14:47.274Z"
+
+        val year = splitDate[2]
+        val month = if (splitDate[1].length == 1) '0' + splitDate[1] else splitDate[1]
+        val day = if (splitDate[0].length == 1) '0' + splitDate[0] else splitDate[0]
+
+        viewModel.birthDate.value = "${year}-${month}-${day}T13:14:47.274Z"
+        viewModel.dateOfBIrthDisplay.value = birthDate
     }
 }
 
@@ -311,7 +319,7 @@ fun Login(viewModel: RegistrationViewModel) {
     )
 
     // Поле ввода логина
-    var login by remember{ mutableStateOf(TextFieldValue(""))}
+    var login by remember{ mutableStateOf(TextFieldValue(viewModel.userName.value))}
     val keyboardController = LocalSoftwareKeyboardController.current
 
     BasicTextField(
@@ -378,6 +386,7 @@ fun Email(viewModel: RegistrationViewModel) {
             email = it
             viewModel.email.value = it
             viewModel.isFilledEmail.value = it.length > 0
+            viewModel.errorMessage.value = ""
                         },
         decorationBox = { innerTextField ->
             Row(
@@ -385,9 +394,11 @@ fun Email(viewModel: RegistrationViewModel) {
                     .fillMaxWidth(1f)
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
-                        color = Gray5E,
+                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
@@ -465,6 +476,20 @@ fun DateOfBirth(viewModel: RegistrationViewModel) {
     viewModel.isClicked.value = false
 }
 
+// Вывод сообщения об ошибке
+@Composable
+fun EmailErrorMessage(viewModel: RegistrationViewModel) {
+    Text(
+        text = viewModel.errorMessage.value,
+        style = TextStyle(
+            fontSize = 16.sp,
+            color = errorColor
+        ),
+        modifier = Modifier
+            .padding(16.dp, 4.dp, 0.dp, 0.dp)
+    )
+}
+
 // Кнопка Продолжить
 @Composable
 fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -> Unit) {
@@ -473,7 +498,9 @@ fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -
         enabled = isEnabled,
         onClick = {
             viewModel.continueButtonClick()
-            onContinueButtonClick()
+
+            if (viewModel.errorMessage.value == "")
+                onContinueButtonClick()
                   },
         modifier = Modifier
             .fillMaxWidth(1f)
