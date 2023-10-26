@@ -21,12 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.Domain.Movie
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.Movies.MoviesResponse
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
 import com.example.mobile_moviescatalog2023.ViewModel.AuthorizationToken
+import com.example.mobile_moviescatalog2023.ViewModel.MainScreenViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,10 +38,11 @@ import kotlinx.coroutines.launch
 // Главный экран
 @Composable
 fun MainScreen() {
+    val viewModel: MainScreenViewModel = viewModel()
     val moviesResponse = remember{ mutableStateOf<List<Movie>?>(null) }
 
     if (moviesResponse.value == null)
-        getMovies(moviesResponse)
+        viewModel.getMovies(moviesResponse)
 
     if (moviesResponse.value != null){
         LazyColumn(
@@ -51,7 +54,7 @@ fun MainScreen() {
                 Catalogue()
             }
             items(items = moviesResponse.value!!) {
-                    movie -> MovieElement(movie)
+                    movie -> MovieElement(viewModel, movie)
             }
         }
     }
@@ -59,8 +62,8 @@ fun MainScreen() {
 
 // Оценка фильма по всем отзывам
 @Composable
-fun Rating(movie: Movie) {
-    val rate = getRating(movie)
+fun Rating(vm: MainScreenViewModel, movie: Movie) {
+    val rate = vm.getRating(movie)
     val rateNum = rate.replace(',', '.').toFloat()
 
     Box(
@@ -93,7 +96,7 @@ fun Rating(movie: Movie) {
 
 // Элемент списка фильмов
 @Composable
-fun MovieElement(movie: Movie) {
+fun MovieElement(vm: MainScreenViewModel, movie: Movie) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -109,7 +112,7 @@ fun MovieElement(movie: Movie) {
                         .clip(shape = RoundedCornerShape(4.dp))
                 )
 
-                Rating(movie)
+                Rating(vm, movie)
             }
             Column(
                 modifier = Modifier
@@ -253,27 +256,4 @@ fun Catalogue() {
             .padding(16.dp)
             .fillMaxWidth()
     )
-}
-
-// Получение списка фильмов
-fun getMovies(moviesList: MutableState<List<Movie>?>) {
-    val movieRetrofit = RetrofitImplementation()
-    val api = movieRetrofit.moviesApiImplementation()
-    var movieResponse: MoviesResponse? = null
-
-    CoroutineScope(Dispatchers.IO).launch {
-        val response = api.getMovies(token = AuthorizationToken.token)
-        movieResponse = response
-
-        if (movieResponse != null) {
-            moviesList.value = movieResponse!!.movies
-        }
-    }
-}
-
-// Подсчёт оценки фильма
-fun getRating(movie: Movie): String {
-    val avg = movie.reviews.sumOf { it -> it.rating } / movie.reviews.size.toFloat()
-
-    return String.format("%.1f", avg)
 }

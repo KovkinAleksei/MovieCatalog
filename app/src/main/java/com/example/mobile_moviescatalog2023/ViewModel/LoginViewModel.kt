@@ -15,6 +15,8 @@ class LoginViewModel: ViewModel() {
     val isFilledPassword = mutableStateOf(false)
     val username = mutableStateOf("")
     val password = mutableStateOf("")
+    val errorMessage = mutableStateOf("")
+    val isLoginAvailable = mutableStateOf(true)
 
     // Вход в аккаунт
     fun login() {
@@ -24,11 +26,22 @@ class LoginViewModel: ViewModel() {
 
         CoroutineScope(Dispatchers.Default).launch {
             val body = LoginBody(username = username.value, password = password.value)
-            val response = api.login(body = body)
-            tokenResponse = response
 
-            if (tokenResponse != null)
-                AuthorizationToken.token = tokenResponse!!.token
+            try {
+                val response = api.login(body = body)
+                tokenResponse = response
+
+                if (tokenResponse != null){
+                    AuthorizationToken.token = tokenResponse!!.token
+                    errorMessage.value = ""
+                    isLoginAvailable.value = false
+                }
+
+            }
+            catch (e: Exception){
+                errorMessage.value = "Неверный логин или пароль."
+                isLoginAvailable.value = true
+            }
         }
     }
 }

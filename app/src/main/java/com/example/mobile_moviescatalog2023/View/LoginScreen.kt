@@ -3,6 +3,7 @@
 package com.example.mobile_moviescatalog2023.View
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -49,10 +51,25 @@ fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit, 
         LoginHeader()
         LoginUser(viewModel)
         Password(viewModel)
+        ErrorMessage(viewModel)
         LoginButton(viewModel, onLoginButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterText(onRegistrationClick)
     }
+}
+
+// Сообщение об ошибке
+@Composable
+fun ErrorMessage(viewModel: LoginViewModel) {
+    Text(
+        text = viewModel.errorMessage.value,
+        style = TextStyle(
+            fontSize = 16.sp,
+            color = errorColor
+        ),
+        modifier = Modifier
+            .padding(16.dp, 4.dp, 0.dp, 0.dp)
+    )
 }
 
 // Заголовок экрана
@@ -99,6 +116,7 @@ fun LoginUser(viewModel: LoginViewModel) {
             viewModel.isFilledLogin.value = login.text.length > 0
             RegistrationData.userName = it.text
             viewModel.username.value = it.text
+            viewModel.errorMessage.value = ""
         },
         decorationBox = { innerTextField ->
             Row(
@@ -106,9 +124,11 @@ fun LoginUser(viewModel: LoginViewModel) {
                     .fillMaxWidth(1f)
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
-                        color = Gray5E,
+                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
@@ -156,6 +176,7 @@ fun Password(viewModel: LoginViewModel) {
             password = it
             viewModel.isFilledPassword.value = password.text.length > 0
             viewModel.password.value = it.text
+            viewModel.errorMessage.value = ""
                         },
         visualTransformation = if (showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
         decorationBox = { innerTextField ->
@@ -164,9 +185,11 @@ fun Password(viewModel: LoginViewModel) {
                     .fillMaxWidth(1f)
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
-                        color = Gray5E,
+                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
@@ -210,11 +233,10 @@ fun LoginButton(viewModel: LoginViewModel, onLoginButtonClick: () -> Unit) {
         enabled = isEnabled,
         onClick = {
             viewModel.login()
-            onLoginButtonClick()
         },
         modifier = Modifier
             .fillMaxWidth(1f)
-            .padding(16.dp, 24.dp, 16.dp, 0.dp)
+            .padding(16.dp, 18.dp, 16.dp, 0.dp)
             .height(50.dp),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = AccentColor,
@@ -234,6 +256,11 @@ fun LoginButton(viewModel: LoginViewModel, onLoginButtonClick: () -> Unit) {
                 fontSize = 17.sp
             )
         )
+    }
+
+    if (!viewModel.isLoginAvailable.value){
+        onLoginButtonClick()
+        viewModel.isLoginAvailable.value = true
     }
 }
 

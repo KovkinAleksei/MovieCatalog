@@ -82,8 +82,11 @@ fun Calendar(viewModel: RegistrationViewModel) {
         day
     )
 
-    if (viewModel.isClicked.value)
+    if (viewModel.isClicked.value){
         datePickerDialog.show()
+        viewModel.isClicked.value = false
+    }
+
 
     viewModel.dateOfBIrthDisplay.value = date.value.replace('/', '.')
 
@@ -221,8 +224,6 @@ fun Gender(viewModel: RegistrationViewModel) {
     )
 
     // Кнопки
-    //val maleSelected = remember{ mutableStateOf(true) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -460,10 +461,8 @@ fun DateOfBirth(viewModel: RegistrationViewModel) {
         )
     }
 
-    if (viewModel.isOpenedCalendar.value) {
-        Calendar(viewModel)
-        viewModel.isClicked.value = false
-    }
+    Calendar(viewModel)
+    viewModel.isClicked.value = false
 }
 
 // Кнопка Продолжить
