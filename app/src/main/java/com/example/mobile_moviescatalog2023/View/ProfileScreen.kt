@@ -35,15 +35,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.View.BottomNavBar
+import com.example.mobile_moviescatalog2023.ViewModel.ProfileViewModel
 import java.util.*
 
 // Профиль пользователя
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(navController: NavController, onExitButtonClick: () -> Unit) {
+    val vm: ProfileViewModel = viewModel()
+
     Column {
         Scaffold(
             bottomBar = {
@@ -53,21 +57,21 @@ fun ProfileScreen(navController: NavController) {
         ) {
             Column {
                 ProfilePicture()
-                ProfileName()
+                ProfileName(vm)
+                Exit(vm, onExitButtonClick)
 
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    ProfileEmailField()
-                    ProfileAvatarSourceField()
-                    ProfileNameField()
-                    ProfileGender()
-                    ProfileDateOfBirth()
+                    ProfileEmailField(vm)
+                    ProfileAvatarSourceField(vm)
+                    ProfileNameField(vm)
+                    ProfileGender(vm)
+                    ProfileDateOfBirth(vm)
 
-                    ProfileSaveButton()
-                    ProfileCancelButton()
+                    ProfileSaveButton(vm)
+                    ProfileCancelButton(vm)
                     Box(modifier = Modifier.height(64.dp))
                 }
             }
-
         }
     }
 }
@@ -94,9 +98,9 @@ fun ProfilePicture() {
 
 // Имя пользователя
 @Composable
-fun ProfileName() {
+fun ProfileName(vm: ProfileViewModel) {
     Text(
-        text = "Ivan ivan ivan",
+        text = vm.nameDisplay.value,
         style = TextStyle(
             fontWeight = FontWeight.Bold,
             color = Color.White,
@@ -108,33 +112,63 @@ fun ProfileName() {
     )
 }
 
+// Выход из аккаунта пользователя
+@Composable
+fun Exit(vm: ProfileViewModel, onExitButtonClick: ()->Unit) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+    ){
+        Text(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .clickable {
+                    vm.exit()
+                    onExitButtonClick()
+                },
+            text = "Выйти из аккаунта",
+            style = TextStyle(
+                color = AccentColor,
+                fontSize = 17.sp,
+                textAlign = TextAlign.Center
+            )
+        )
+    }
+
+}
+
 // Поле с email пользователя
 @Composable
-fun ProfileEmailField() {
+fun ProfileEmailField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.email),
         borderColor = Gray5E,
-        bgColor = DarkGray700
+        bgColor = DarkGray700,
+        vm.email,
+        vm
     )
 }
 
 // Поле со ссылкой на аватар пользователя
 @Composable
-fun ProfileAvatarSourceField() {
+fun ProfileAvatarSourceField(vm: ProfileViewModel) {
     ProfileTextField(
         label = "Ссылка на аватар",
         borderColor = Gray5E,
-        bgColor = DarkGray700
+        bgColor = DarkGray700,
+        vm.profilePicture,
+        vm
     )
 }
 
 // Поле с именем пользователя
 @Composable
-fun ProfileNameField() {
+fun ProfileNameField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.name),
         borderColor = Gray5E,
-        bgColor = DarkGray700
+        bgColor = DarkGray700,
+        vm.name,
+        vm
     )
 }
 
@@ -143,7 +177,9 @@ fun ProfileNameField() {
 fun ProfileTextField(
     label: String,
     borderColor: Color,
-    bgColor: Color
+    bgColor: Color,
+    fieldValue: MutableState<String>,
+    vm: ProfileViewModel
 ) {
     // Название поля
     Text(
@@ -158,7 +194,7 @@ fun ProfileTextField(
     )
 
     // Поле с данными
-    var textFieldValue by remember{ mutableStateOf("") }
+    var textFieldValue by remember{ fieldValue }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     BasicTextField(
@@ -167,6 +203,7 @@ fun ProfileTextField(
         cursorBrush = SolidColor(Color.White),
         onValueChange = {
             textFieldValue = it
+            vm.checkChanges()
         },
         decorationBox = { innerTextField ->
             Row(
@@ -200,7 +237,7 @@ fun ProfileTextField(
 
 // Пол пользователя
 @Composable
-fun ProfileGender() {
+fun ProfileGender(vm: ProfileViewModel) {
     // Надпись пол
     Text(
         modifier = Modifier
@@ -225,9 +262,7 @@ fun ProfileGender() {
             .height(55.dp)
             .padding(2.dp)
     ) {
-        val maleSelected = remember {
-            mutableStateOf(true)
-        }
+        val maleSelected = vm.isMale
 
         // Кнопка Мужчина
         Button(
@@ -238,6 +273,8 @@ fun ProfileGender() {
             onClick = {
                 if (!maleSelected.value)
                     maleSelected.value = !maleSelected.value
+
+                vm.checkChanges()
             },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
@@ -267,6 +304,8 @@ fun ProfileGender() {
             onClick = {
                 if (maleSelected.value)
                     maleSelected.value = !maleSelected.value
+
+                vm.checkChanges()
             },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
@@ -292,7 +331,7 @@ fun ProfileGender() {
 // Календарь
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ProfileCalendar(isClicked: MutableState<Boolean>, dateOfBIrthDisplay: MutableState<String>) {
+fun ProfileCalendar(vm: ProfileViewModel) {
     val calendar = Calendar.getInstance()
     calendar.time = Date()
 
@@ -300,28 +339,29 @@ fun ProfileCalendar(isClicked: MutableState<Boolean>, dateOfBIrthDisplay: Mutabl
     var selectedDate by remember { mutableStateOf(calendar.timeInMillis) }
 
     val displayFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.ROOT)
-    //val birthDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
+    val birthDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
 
-    if (isClicked.value){
+    if (vm.isClicked.value){
         DatePickerDialog(
             onDismissRequest = {
-                isClicked.value = false
+                vm.isClicked.value = false
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                    isClicked.value = false
-                    selectedDate = datePickerState.selectedDateMillis!!
-                    dateOfBIrthDisplay.value = displayFormatter.format(Date(selectedDate)).replace('-', '.')
-                 //   viewModel.birthDate.value = birthDateFormatter.format(Date(selectedDate)).replace('-', '.') + "T13:14:47.274Z"
-                }) {
+                        vm.isClicked.value = false
+                        selectedDate = datePickerState.selectedDateMillis!!
+                        vm.dateOfBirthDisplay.value = displayFormatter.format(Date(selectedDate)).replace('-', '.')
+                        vm.birthDate.value = birthDateFormatter.format(Date(selectedDate)).replace('-', '.') + "T13:14:47.274Z"
+                        vm.checkChanges()
+                    }) {
                     Text(text = "Confirm")
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = {
-                    isClicked.value = false
+                    vm.isClicked.value = false
                 }) {
                     Text(text = "Cancel")
                 }
@@ -364,7 +404,7 @@ fun ProfileCalendar(isClicked: MutableState<Boolean>, dateOfBIrthDisplay: Mutabl
 
 // Поле с датой рождения пользователя
 @Composable
-fun ProfileDateOfBirth() {
+fun ProfileDateOfBirth(vm: ProfileViewModel) {
     // Надпись Дата рождения
     Text(
         modifier = Modifier
@@ -376,10 +416,6 @@ fun ProfileDateOfBirth() {
             color = Color.White
         )
     )
-
-    val dateOfBirthDisplay = remember {mutableStateOf("")}
-    val isOpenedCalendar = remember { mutableStateOf(false) }
-    val isClicked = remember { mutableStateOf(false) }
 
     // Поле выбора даты рождения
     Row(
@@ -395,7 +431,7 @@ fun ProfileDateOfBirth() {
             .padding(12.dp)
     ){
         Text(
-            text = dateOfBirthDisplay.value,
+            text = vm.dateOfBirthDisplay.value,
             style = TextStyle(
                 color = Color.White,
                 fontSize = 17.sp
@@ -413,25 +449,28 @@ fun ProfileDateOfBirth() {
                 .clickable (
                     enabled = true,
                     onClick = {
-                        isOpenedCalendar.value = true
-                        isClicked.value = true
+                        vm.isClicked.value = true
                     }
                 )
         )
     }
 
-    ProfileCalendar(isClicked, dateOfBirthDisplay)
-    isClicked.value = false
+    ProfileCalendar(vm)
+    vm.isClicked.value = false
 }
 
 // Кнопка Сохранить
 @Composable
-fun ProfileSaveButton() {
-    val isEnabled = false
+fun ProfileSaveButton(vm: ProfileViewModel) {
+    val isEnabled by remember {
+        vm.isSaveAvailable
+    }
 
     Button(
         enabled = isEnabled,
-        onClick = {},
+        onClick = {
+                  vm.saveButtonClick()
+        },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 20.dp, 16.dp, 0.dp)
@@ -459,10 +498,11 @@ fun ProfileSaveButton() {
 
 // Кнопка Отмена
 @Composable
-fun ProfileCancelButton() {
-    // Кнопка Войти
+fun ProfileCancelButton(vm: ProfileViewModel) {
     Button(
-        onClick = { },
+        onClick = {
+                  vm.cancelButtonClick()
+        },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 16.dp, 16.dp, 0.dp)

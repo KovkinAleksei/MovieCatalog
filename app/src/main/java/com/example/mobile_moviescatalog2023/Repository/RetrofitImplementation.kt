@@ -3,8 +3,11 @@
 package com.example.mobile_moviescatalog2023.Repository
 
 import com.example.mobile_moviescatalog2023.Repository.Login.LoginApi
+import com.example.mobile_moviescatalog2023.Repository.Login.LogoutApi
 import com.example.mobile_moviescatalog2023.Repository.Movies.MovieApi
 import com.example.mobile_moviescatalog2023.Repository.Registration.RegistrationApi
+import com.example.mobile_moviescatalog2023.Repository.UserProfile.GetProfileApi
+import com.example.mobile_moviescatalog2023.Repository.UserProfile.PutProfileApi
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -35,6 +38,18 @@ class RetrofitImplementation {
     }
 
     fun moviesApiImplementation(): MovieApi {
+        return retrofit.create()
+    }
+
+    fun getProfileImplementation(): GetProfileApi {
+        return retrofit.create()
+    }
+
+    fun putProfileImplementation(): PutProfileApi {
+        return retrofit.create()
+    }
+
+    fun logoutImplementation(): LogoutApi {
         return retrofit.create()
     }
 }
