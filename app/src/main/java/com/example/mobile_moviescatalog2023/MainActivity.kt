@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = regOrLogScreen
+                        startDestination = "profileScreen"
                     ) {
                         // Экран выбора регистрации или авторизации
                         composable(regOrLogScreen){
@@ -115,7 +115,17 @@ class MainActivity : ComponentActivity() {
 
                         // Главный экран
                         composable(mainScreen) {
-                            MainScreen()
+                            MainScreen(navController)
+                        }
+
+                        // Экран с профилем пользователя
+                        composable ("profileScreen") {
+                            ProfileScreen(navController)
+                        }
+
+                        // Экран с любимыми фильмами пользователя
+                        composable ("favouritesScreen") {
+                            FavouritesScreen(navController)
                         }
                     }
                 }

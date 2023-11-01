@@ -1,5 +1,6 @@
 package com.example.mobile_moviescatalog2023.View
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.Domain.Movie
 import com.example.mobile_moviescatalog2023.R
@@ -36,8 +39,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // Главный экран
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     val viewModel: MainScreenViewModel = viewModel()
     val moviesResponse = remember{ mutableStateOf<List<Movie>?>(null) }
 
@@ -45,16 +49,22 @@ fun MainScreen() {
         viewModel.getMovies(moviesResponse)
 
     if (moviesResponse.value != null){
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            item {
-                FilmsPager()
-                Catalogue()
+        Scaffold (
+            bottomBar = {
+                BottomNavBar(navController)
             }
-            items(items = moviesResponse.value!!) {
-                    movie -> MovieElement(viewModel, movie)
+        ){
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                item {
+                    FilmsPager()
+                    Catalogue()
+                }
+                items(items = moviesResponse.value!!) {
+                        movie -> MovieElement(viewModel, movie)
+                }
             }
         }
     }

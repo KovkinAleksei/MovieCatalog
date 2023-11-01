@@ -1,16 +1,19 @@
-@file:OptIn(ExperimentalComposeUiApi::class)
+@file:OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 
 package com.example.mobile_moviescatalog2023.View
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
-import android.widget.DatePicker
+import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -19,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -31,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
 import com.example.mobile_moviescatalog2023.ViewModel.RegistrationViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import java.util.*
@@ -65,42 +66,40 @@ fun RegistrationScreen(
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun Calendar(viewModel: RegistrationViewModel) {
-    val context = LocalContext.current
     val calendar = Calendar.getInstance()
-
-    val year = calendar.get(Calendar.YEAR)
-    val month = calendar.get(Calendar.MONTH)
-    val day = calendar.get(Calendar.DAY_OF_MONTH)
-
     calendar.time = Date()
-    val date = remember { mutableStateOf("") }
 
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            date.value = "$mDayOfMonth/${mMonth+1}/$mYear"
-        },
-        year,
-        month,
-        day
-    )
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = calendar.timeInMillis)
+    var selectedDate by remember { mutableStateOf(calendar.timeInMillis) }
+
+    val displayFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.ROOT)
+    val birthDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
 
     if (viewModel.isClicked.value){
-        datePickerDialog.show()
-        viewModel.isClicked.value = false
-    }
-
-    val birthDate = date.value.replace('/', '.')
-
-    if (date.value != "") {
-        val splitDate = date.value.split('/')
-
-        val year = splitDate[2]
-        val month = if (splitDate[1].length == 1) '0' + splitDate[1] else splitDate[1]
-        val day = if (splitDate[0].length == 1) '0' + splitDate[0] else splitDate[0]
-
-        viewModel.birthDate.value = "${year}-${month}-${day}T13:14:47.274Z"
-        viewModel.dateOfBIrthDisplay.value = birthDate
+        DatePickerDialog(
+            onDismissRequest = {
+                viewModel.isClicked.value = false
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.isClicked.value = false
+                    selectedDate = datePickerState.selectedDateMillis!!
+                    viewModel.dateOfBIrthDisplay.value = displayFormatter.format(Date(selectedDate)).replace('-', '.')
+                    viewModel.birthDate.value = birthDateFormatter.format(Date(selectedDate)).replace('-', '.') + "T13:14:47.274Z"
+                }) {
+                    Text(text = "Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.isClicked.value = false
+                }) {
+                    Text(text = "Cancel")
+                }
+            }
+        ){
+            DatePicker(state = datePickerState)
+        }
     }
 }
 
