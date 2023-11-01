@@ -65,8 +65,10 @@ class ProfileViewModel: ViewModel() {
             val response = api.putProfile(body = newProfile, token = "Bearer ${AuthorizationToken.token}")
         }
 
-        getProfile()
+        nameDisplay.value = name.value
         isSaveAvailable.value = false
+
+        profileResponse = newProfile
     }
 
     // Отмена изменений профиля

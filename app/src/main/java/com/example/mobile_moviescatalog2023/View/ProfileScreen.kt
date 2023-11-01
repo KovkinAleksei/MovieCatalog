@@ -86,7 +86,7 @@ fun ProfilePicture() {
     ) {
         Image(
             painter = painterResource(id = R.drawable.media3),
-            contentDescription = "null",
+            contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(88.dp)
@@ -125,7 +125,7 @@ fun Exit(vm: ProfileViewModel, onExitButtonClick: ()->Unit) {
                     vm.exit()
                     onExitButtonClick()
                 },
-            text = "Выйти из аккаунта",
+            text = stringResource(id = R.string.exit),
             style = TextStyle(
                 color = AccentColor,
                 fontSize = 17.sp,
@@ -152,7 +152,7 @@ fun ProfileEmailField(vm: ProfileViewModel) {
 @Composable
 fun ProfileAvatarSourceField(vm: ProfileViewModel) {
     ProfileTextField(
-        label = "Ссылка на аватар",
+        label = stringResource(id = R.string.profilepic_source),
         borderColor = Gray5E,
         bgColor = DarkGray700,
         vm.profilePicture,
@@ -486,7 +486,7 @@ fun ProfileSaveButton(vm: ProfileViewModel) {
         )
     ) {
         Text (
-            text = "Сохранить",
+            text = stringResource(id = R.string.save),
             style = TextStyle(
                 color = if (isEnabled) Color.White else WhiteTransparent,
                 fontWeight = FontWeight.SemiBold,
@@ -515,7 +515,7 @@ fun ProfileCancelButton(vm: ProfileViewModel) {
         )
     ) {
         Text (
-            text = "Отмена",
+            text = stringResource(id = R.string.cancel),
             style = TextStyle(
                 color = AccentColor,
                 fontWeight = FontWeight.SemiBold,

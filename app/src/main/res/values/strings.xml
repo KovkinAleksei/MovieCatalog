@@ -25,6 +25,13 @@
     <string name="registration_last_button">Зарегистрироваться</string>
     <string name="repeat_password">Повторите пароль</string>
     <string name="catalogue">Каталог</string>
+    <string name="exit">Выйти из аккаунта</string>
+    <string name="profilepic_source">Ссылка на аватар</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="favourite">Любимое</string>
+    <string name="no_films">У вас пока нет любимых фильмов</string>
+    <string name="choose_favourite">Выберете понравившийся фильм в каталоге и добавьте его в любимые</string>
 
 
 </resources>

@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // Экран с профилем пользователя
-                        composable ("profileScreen") {
+                        composable (profileScreen) {
                             ProfileScreen(
                                 navController = navController,
                                 onExitButtonClick = {
@@ -133,7 +133,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // Экран с любимыми фильмами пользователя
-                        composable ("favouritesScreen") {
+                        composable (favouritesScreen) {
                             FavouritesScreen(navController)
                         }
                     }
