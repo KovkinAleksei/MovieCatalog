@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,12 +14,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -31,15 +32,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.Domain.Movie
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.Repository.Movies.MoviesResponse
-import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
-import com.example.mobile_moviescatalog2023.ViewModel.AuthorizationToken
 import com.example.mobile_moviescatalog2023.ViewModel.MainScreenViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 // Главный экран
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -71,6 +66,20 @@ fun MainScreen(navController: NavController) {
                     MovieElement(viewModel, movie)
                 }
                 item {
+                    if (viewModel.isLoading) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            CircularProgressIndicator(
+                                color = AccentColor,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.Center)
+                            )
+                        }
+                        Box(modifier = Modifier.height(20.dp))
+                    }
                     Box(modifier = Modifier.height(54.dp))
                 }
             }
@@ -230,41 +239,65 @@ fun GenreLabel(genre: String) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FilmsPager() {
-    val medialList = listOf( R.drawable.media1, R.drawable.media2, R.drawable.media3, R.drawable.media4)
-
+    val medialList = listOf(R.drawable.media1, R.drawable.media2, R.drawable.media3, R.drawable.media4)
     val pagerState = rememberPagerState()
-    var currentPage = remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         while (true) {
             delay(3000)
-            currentPage.value = (currentPage.value + 1) % 4
-            pagerState.animateScrollToPage((currentPage.value))
+            pagerState.animateScrollToPage(pagerState.currentPage + 1 % 4)
         }
     }
 
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(0.7245f),
-            pageCount = 4
-
-        ) {
-            page -> Box(
+        Box {
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = medialList[page]),
-                    contentDescription = null,
+                    .aspectRatio(0.7245f),
+                pageCount = 4
+
+            ) { page ->
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                )
+                ) {
+                    Image(
+                        painter = painterResource(id = medialList[page]),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .align(Alignment.BottomCenter)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .clip(shape = RoundedCornerShape(10.dp))
+                        .background(transparent)
+                        .padding(4.dp)
+                ) {
+                    repeat(4) { iteration ->
+                        Image(
+                            painter = if (pagerState.currentPage == iteration)
+                                painterResource(id = R.drawable.filled_dot)
+                            else
+                                painterResource(id = R.drawable.hollow_dot),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(4.dp, 2.dp)
+                                .size(8.dp)
+                        )
+                    }
+                }
             }
         }
     }
