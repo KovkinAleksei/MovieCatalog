@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -44,8 +47,9 @@ import kotlinx.coroutines.launch
 fun MainScreen(navController: NavController) {
     val viewModel: MainScreenViewModel = viewModel()
     val moviesResponse = remember{ mutableStateOf<List<Movie>?>(null) }
+    val listState = rememberLazyListState()
 
-    if (moviesResponse.value == null)
+    if (viewModel.isInitialized == false)
         viewModel.getMovies(moviesResponse)
 
     if (moviesResponse.value != null){
@@ -55,6 +59,7 @@ fun MainScreen(navController: NavController) {
             }
         ){
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
             ) {
@@ -62,11 +67,24 @@ fun MainScreen(navController: NavController) {
                     FilmsPager()
                     Catalogue()
                 }
-                items(items = moviesResponse.value!!) {
-                        movie -> MovieElement(viewModel, movie)
+                items(items = moviesResponse.value!!) { movie ->
+                    MovieElement(viewModel, movie)
+                }
+                item {
+                    Box(modifier = Modifier.height(54.dp))
                 }
             }
         }
+    }
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .collect { visibleItems ->
+                val lastVisibleItem = visibleItems.lastOrNull()
+                if (lastVisibleItem != null && lastVisibleItem.index == listState.layoutInfo.totalItemsCount - 1 && !viewModel.isLoading) {
+                    viewModel.getMovies(moviesResponse)
+                }
+            }
     }
 }
 
