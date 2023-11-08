@@ -2,10 +2,14 @@
 
 package com.example.mobile_moviescatalog2023.Repository
 
+import com.example.mobile_moviescatalog2023.Repository.FavouriteMovies.AddFavouriteMovieApi
+import com.example.mobile_moviescatalog2023.Repository.FavouriteMovies.DeleteFavouriteMovieApi
+import com.example.mobile_moviescatalog2023.Repository.FavouriteMovies.GetFavouriteMoviesApi
 import com.example.mobile_moviescatalog2023.Repository.Login.LoginApi
 import com.example.mobile_moviescatalog2023.Repository.Login.LogoutApi
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.MovieDetailsApi
 import com.example.mobile_moviescatalog2023.Repository.Movies.MovieApi
+import com.example.mobile_moviescatalog2023.Repository.Movies.MoviesResponse
 import com.example.mobile_moviescatalog2023.Repository.Registration.RegistrationApi
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.GetProfileApi
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.PutProfileApi
@@ -55,6 +59,18 @@ class RetrofitImplementation {
     }
 
     fun getMovieDetailsImplementation(): MovieDetailsApi {
+        return retrofit.create()
+    }
+
+    fun addFavouriteMovieImplementation(): AddFavouriteMovieApi {
+        return retrofit.create()
+    }
+
+    fun getFavouriteMoviesImplementation(): GetFavouriteMoviesApi {
+        return retrofit.create()
+    }
+
+    fun deleteFavouriteMoviesImplementation(): DeleteFavouriteMovieApi {
         return retrofit.create()
     }
 }

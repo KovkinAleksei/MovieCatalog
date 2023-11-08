@@ -7,5 +7,5 @@ class ReviewDetails(
     val reviewText: String?,
     val isAnonymous: Boolean,
     val createDateTime: String,
-    val author: ReviewAuthor
+    val author: ReviewAuthor?
 )

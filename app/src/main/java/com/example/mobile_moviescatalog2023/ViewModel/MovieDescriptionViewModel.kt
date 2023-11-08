@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.mobile_moviescatalog2023.Domain.Genre
+import com.example.mobile_moviescatalog2023.Domain.Movie
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.MovieDetailsResponse
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.ReviewDetails
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
@@ -29,6 +30,9 @@ class MovieDescriptionViewModel: ViewModel() {
     val time = mutableStateOf("")
     val reviews: MutableState<List<ReviewDetails>?> = mutableStateOf(null)
     var isInitialized = false
+    var isFavorite = mutableStateOf(false)
+
+    private var favoriteMoviesList: List<Movie> = listOf()
 
     private var movieDetails: MovieDetailsResponse? = null
 
@@ -43,8 +47,17 @@ class MovieDescriptionViewModel: ViewModel() {
         country.value = movieDetails?.country ?: ""
         slogan.value = movieDetails?.tagline ?: ""
         director.value = movieDetails?.director ?: ""
-        budget.value = "$${NumberFormat.getNumberInstance(Locale.US).format(movieDetails?.budget)}".replace(',', ' ')
-        fees.value = "$${NumberFormat.getNumberInstance(Locale.US).format(movieDetails?.fees)}".replace(',', ' ')
+
+        budget.value = if (movieDetails?.budget != null)
+            "$${NumberFormat.getNumberInstance(Locale.US).format(movieDetails?.budget)}".replace(',', ' ')
+        else
+            ""
+
+        fees.value = if (movieDetails?.fees != null)
+            "$${NumberFormat.getNumberInstance(Locale.US).format(movieDetails?.fees)}".replace(',', ' ')
+        else
+            ""
+
         ageLimit.value = "${movieDetails?.ageLimit}+"
         time.value = "${movieDetails?.time} мин."
         reviews.value = movieDetails?.reviews
@@ -54,15 +67,54 @@ class MovieDescriptionViewModel: ViewModel() {
 
     // Получение подробной информации о фильме
     fun getMovieDetails(id: String?, isLoaded: MutableState<Boolean> ) {
-        val movieRetrofit = RetrofitImplementation()
-        val api = movieRetrofit.getMovieDetailsImplementation()
+        val retrofit = RetrofitImplementation()
+        val api = retrofit.getMovieDetailsImplementation()
 
         CoroutineScope(Dispatchers.IO).launch {
-            val response = api.getMovies(id = (id ?: ""), token = AuthorizationToken.token)
+            val response = api.getMovies(id = (id ?: ""), token = "Bearer ${AuthorizationToken.token}")
             movieDetails = response
+
             fillValues()
+            getFavoriteMovies(isLoaded)
+        }
+    }
+
+    // Добавление фильма в любимые
+    fun addToFavourites() {
+        val retrofit = RetrofitImplementation()
+        val api = retrofit.addFavouriteMovieImplementation()
+
+        CoroutineScope(Dispatchers.Default).launch {
+            api.addFavouriteMovie(id = movieDetails?.id ?: "", token = "Bearer ${AuthorizationToken.token}")
+        }
+
+        isFavorite.value = true
+    }
+
+    // Получение списка любимых фильмов
+    private fun getFavoriteMovies(isLoaded: MutableState<Boolean>) {
+        val retrofit = RetrofitImplementation()
+        val api = retrofit.getFavouriteMoviesImplementation()
+
+        CoroutineScope(Dispatchers.Default).launch {
+            val response = api.getFavoriteMovies(token = "Bearer ${AuthorizationToken.token}")
+            favoriteMoviesList = response.movies
+
+            isFavorite.value = movieDetails?.id in response.movies.map { it -> it.id }
             isLoaded.value = true
         }
+    }
+
+    // Удаление фильма из списка любимых
+    fun deleteFromFavourites() {
+        val retrofit = RetrofitImplementation()
+        val api = retrofit.deleteFavouriteMoviesImplementation()
+
+        CoroutineScope(Dispatchers.Default).launch {
+            api.deleteFavoriteMovies(id = movieDetails?.id ?: "", token = "Bearer ${AuthorizationToken.token}")
+        }
+
+        isFavorite.value = false
     }
 
     // Подсчёт оценки фильма

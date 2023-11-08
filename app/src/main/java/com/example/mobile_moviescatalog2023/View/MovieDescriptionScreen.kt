@@ -167,9 +167,7 @@ fun MovieHeader(vm: MovieDescriptionViewModel) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Кнопка добавления в избранное
-        val isClicked = remember { mutableStateOf(false) }
-
+        // Кнопка добавления в избранное / удаления из избранных
         Box(
             modifier = Modifier
                 .size(45.dp)
@@ -178,12 +176,16 @@ fun MovieHeader(vm: MovieDescriptionViewModel) {
                 .background(Gray40)
                 .clickable(
                     enabled = true,
-                    onClick = { isClicked.value = !isClicked.value }
+                    onClick = {
+                        if (!vm.isFavorite.value)
+                            vm.addToFavourites()
+                        else
+                            vm.deleteFromFavourites()
+                    }
                 )
         ) {
             Image(
-                painter =
-                if (isClicked.value)
+                painter =if (vm.isFavorite.value)
                     painterResource(id = R.drawable.red_heart)
                 else
                     painterResource(id = R.drawable.heart),
@@ -421,7 +423,7 @@ fun FeedbackHeader(review: ReviewDetails) {
 
     Row {
         // Аватарка
-        val avatar = review.author.avatar
+        val avatar = review.author?.avatar
 
         if (avatar != null && !review.isAnonymous) {
             AsyncImage(
@@ -454,7 +456,7 @@ fun FeedbackHeader(review: ReviewDetails) {
                 text = if (review.isAnonymous)
                     "Анонимный пользователь"
                 else
-                    review.author.nickName ?: "Анонимный пользователь",
+                    review.author?.nickName ?: "Анонимный пользователь",
                 style = TextStyle(
                     fontSize = 16.sp,
                     color = Color.White,
