@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +16,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +42,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun MainScreen(navController: NavController) {
     val viewModel: MainScreenViewModel = viewModel()
-    val moviesResponse = remember{ mutableStateOf<List<Movie>?>(null) }
+    val moviesResponse = rememberSaveable { mutableStateOf<List<Movie>?>(null) }
     val listState = rememberLazyListState()
 
     if (viewModel.isInitialized == false)
@@ -62,7 +64,7 @@ fun MainScreen(navController: NavController) {
                     Catalogue()
                 }
                 items(items = moviesResponse.value!!) { movie ->
-                    MovieElement(viewModel, movie)
+                    MovieElement(viewModel, movie, navController)
                 }
                 item {
                     if (viewModel.isLoading) {
@@ -132,12 +134,18 @@ fun Rating(vm: MainScreenViewModel, movie: Movie) {
 
 // Элемент списка фильмов
 @Composable
-fun MovieElement(vm: MainScreenViewModel, movie: Movie) {
+fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 0.dp, 16.dp, 16.dp)
             .background(DarkGray700)
+            .clickable(
+                enabled = true,
+                onClick = {
+                    navController.navigate("movie_description_screen/${movie.id}")
+                }
+            )
     ) {
         Row {
             Box {

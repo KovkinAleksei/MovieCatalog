@@ -6,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.mobile_moviescatalog2023.View.*
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
@@ -26,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "movie_description_screen"
+                        startDestination = regOrLogScreen
                     ) {
                         // Экран выбора регистрации или авторизации
                         composable(regOrLogScreen){
@@ -138,8 +140,19 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // Экран с описанием фильма
-                        composable("movie_description_screen") {
-                            MovieDescriptonScreen()
+                        composable(
+                            "movie_description_screen/{id}",
+                            arguments = listOf(navArgument("id") {type = NavType.StringType})
+                        ) {
+                            navBackStackEntry ->
+                            val id = navBackStackEntry.arguments?.getString("id")
+                            MovieDescriptonScreen(id) {
+                                navController.navigate(mainScreen) {
+                                    popUpTo(mainScreen) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
                         }
                     }
                 }

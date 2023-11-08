@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.View.BottomNavBar
 import com.example.mobile_moviescatalog2023.ViewModel.ProfileViewModel
@@ -56,7 +57,7 @@ fun ProfileScreen(navController: NavController, onExitButtonClick: () -> Unit) {
             }
         ) {
             Column {
-                ProfilePicture()
+                ProfilePicture(vm)
                 ProfileName(vm)
                 Exit(vm, onExitButtonClick)
 
@@ -78,21 +79,34 @@ fun ProfileScreen(navController: NavController, onExitButtonClick: () -> Unit) {
 
 // Аватарка пользователя
 @Composable
-fun ProfilePicture() {
+fun ProfilePicture(vm: ProfileViewModel) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 16.dp, 16.dp, 4.dp)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.media3),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(88.dp)
-                .clip(CircleShape)
-                .align(Alignment.Center)
-        )
+        if (vm.profilePicture.value != "") {
+            AsyncImage(
+                model = vm.profilePicture.value,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(88.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.Center)
+            )
+        }
+        else {
+            Image(
+                painter = painterResource(id = R.drawable.anonimous),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(88.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.Center)
+            )
+        }
     }
 }
 
@@ -343,6 +357,9 @@ fun ProfileCalendar(vm: ProfileViewModel) {
 
     if (vm.isClicked.value){
         DatePickerDialog(
+            colors = DatePickerDefaults.colors(
+                containerColor = Color(0xFF303030)
+            ),
             onDismissRequest = {
                 vm.isClicked.value = false
             },
@@ -369,34 +386,27 @@ fun ProfileCalendar(vm: ProfileViewModel) {
         ){
             DatePicker(
                 state = datePickerState,
-               // Modifier.background(Color(0xFF303030)),
+                Modifier.background(Color(0xFF303030)),
 
-               /* colors = DatePickerDefaults.colors(
+                colors = DatePickerDefaults.colors(
                     containerColor = Color(0xFF303030),
                     titleContentColor = Color.White,
                     headlineContentColor = AccentColor,
                     weekdayContentColor = Color.White,
                     subheadContentColor = Color.White,
                     yearContentColor = Color.White,
-                    //disabledYearContentColor = Color.White,
                     currentYearContentColor = Color.White,
                     selectedYearContentColor = AccentColor,
-                   // disabledSelectedYearContentColor = Color.Green,
                     selectedYearContainerColor = Color.White,
-                  //  disabledSelectedYearContainerColor = Color.Green,
                     dayContentColor = Color.White,
                     disabledDayContentColor = GrayC4,
                     selectedDayContentColor = Color.White,
                     disabledSelectedDayContentColor = Color.White,
                     selectedDayContainerColor = AccentColor,
-                   // disabledSelectedDayContainerColor: Color,
                     todayContentColor = Color.White,
                     todayDateBorderColor = AccentColor,
-                    dayInSelectionRangeContentColor = Color.White,
-                   // dayInSelectionRangeContainerColor = Color,
-                  //  dividerColor = Color.White,
-                   // dateTextFieldColors: TextFieldColors
-                )*/
+                    dayInSelectionRangeContentColor = Color.White
+                )
             )
         }
     }

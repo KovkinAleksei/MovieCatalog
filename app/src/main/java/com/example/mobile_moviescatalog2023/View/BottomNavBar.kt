@@ -32,7 +32,13 @@ fun BottomNavBar(
         itemsList.forEach { item ->
             BottomNavigationItem(
                 selected = currentRoute == item.route,
-                onClick = { navController.navigate(item.route) },
+                onClick = {
+                    if (item.route != currentRoute) {
+                        navController.navigate(item.route) {
+                            popUpTo(mainScreen)
+                        }
+                    }
+                          },
                 icon = {
                     Image(
                         painter = painterResource(id = if (currentRoute == item.route) item.accentIcon else item.defaultIcon),

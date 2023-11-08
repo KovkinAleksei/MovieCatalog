@@ -31,7 +31,6 @@ fun RegistrationOrLoginScreen(
     onLoginButtonClick: () -> Unit,
 ) {
     Column {
-        FilmusHeader()
         MovieIcon()
         CinemaDescription()
         Buttons(onRegButtonClick, onLoginButtonClick)
@@ -62,7 +61,7 @@ fun MovieIcon() {
         imageVector = ImageVector.vectorResource(id = R.drawable.cinema_icon),
         contentDescription = null,
         modifier = Modifier
-            .padding(16.dp, 16.dp, 16.dp, 0.dp)
+            .padding(16.dp, 80.dp, 16.dp, 0.dp)
             .fillMaxWidth(1f),
         contentScale = ContentScale.FillWidth
     )

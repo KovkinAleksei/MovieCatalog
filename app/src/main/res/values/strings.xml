@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Mobile-MoviesCatalog2023</string>
     <string name="registration_slogan">Погрузись в мир кино</string>
-    <string name="cinema_name">Fильмус</string>
+    <string name="cinema_name">FИЛЬМУС</string>
     <string name="cinema_description">Мы предлагаем удобный и легкий способ насладиться любимыми фильмами прямо с Вашего мобильного устройства.</string>
     <string name="registration_button">Регистрация</string>
     <string name="login_button">Войти</string>

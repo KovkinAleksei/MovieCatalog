@@ -4,6 +4,7 @@ package com.example.mobile_moviescatalog2023.Repository
 
 import com.example.mobile_moviescatalog2023.Repository.Login.LoginApi
 import com.example.mobile_moviescatalog2023.Repository.Login.LogoutApi
+import com.example.mobile_moviescatalog2023.Repository.MovieDetails.MovieDetailsApi
 import com.example.mobile_moviescatalog2023.Repository.Movies.MovieApi
 import com.example.mobile_moviescatalog2023.Repository.Registration.RegistrationApi
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.GetProfileApi
@@ -50,6 +51,10 @@ class RetrofitImplementation {
     }
 
     fun logoutImplementation(): LogoutApi {
+        return retrofit.create()
+    }
+
+    fun getMovieDetailsImplementation(): MovieDetailsApi {
         return retrofit.create()
     }
 }

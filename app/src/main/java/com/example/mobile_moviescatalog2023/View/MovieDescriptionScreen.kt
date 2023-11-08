@@ -7,7 +7,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,44 +26,54 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.R
+import com.example.mobile_moviescatalog2023.Repository.MovieDetails.ReviewDetails
 import com.example.mobile_moviescatalog2023.ViewModel.MovieDescriptionViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
 // Экран с описанием фильма
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MovieDescriptonScreen() {
+fun MovieDescriptonScreen(id: String?, onBackButtonClick: () -> Unit) {
     val vm: MovieDescriptionViewModel = viewModel()
+    val isLoaded = remember{ mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopBar()
-        }
-    ) {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            MoviePoster(vm)
-            MovieHeader(vm)
-            Description(vm)
-            MovieGenres()
-            MovieGenresList(vm)
-            AboutMovie()
-            MovieInfo(vm)
-            FeedbackLable()
-            FeedbackList(vm)
+    if (!vm.isInitialized)
+        vm.getMovieDetails(id, isLoaded)
+
+    if (isLoaded.value) {
+        Scaffold(
+            topBar = {
+                TopBar(onBackButtonClick)
+            }
+        ) {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                MoviePoster(vm)
+                MovieHeader(vm)
+                Description(vm)
+                MovieGenres()
+                MovieGenresList(vm)
+                AboutMovie()
+                MovieInfo(vm)
+                FeedbackLable()
+                FeedbackList(vm)
+                Spacer(modifier = Modifier.height(10.dp))
+            }
         }
     }
 }
 
 // Верхняя часть экрана
 @Composable
-fun TopBar() {
+fun TopBar(onBackButtonClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(16.dp, 10.dp, 0.dp, 10.dp)
             .fillMaxWidth()
     ) {
         BackButton {
+            onBackButtonClick()
         }
     }
 }
@@ -75,13 +84,15 @@ fun MoviePoster(vm: MovieDescriptionViewModel) {
     Box (){
         val density = LocalDensity.current.density
 
-        Image(
-            painter = painterResource(id = vm.moviePoster),
+        AsyncImage(
+            model = vm.moviePoster.value,
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(0.72f),
+                .aspectRatio(0.725f),
+            contentScale = ContentScale.Crop
         )
+
         Box(
             modifier = Modifier
                 .height(545.dp)
@@ -107,8 +118,7 @@ fun MovieHeader(vm: MovieDescriptionViewModel) {
             .wrapContentHeight(align = Alignment.CenterVertically)
             .fillMaxWidth()
     ) {
-        //DescriptionRating(vm)
-        val rate = vm.movieRating.toString()
+        val rate = vm.movieRating.value
         val rateNum = rate.replace(',', '.').toFloat()
 
         Box(
@@ -143,7 +153,7 @@ fun MovieHeader(vm: MovieDescriptionViewModel) {
 
         // Название фильма
         Text(
-            text = vm.movieName,
+            text = vm.movieName.value,
             style = TextStyle(
                 fontSize = 26.sp,
                 color = Color.White,
@@ -152,7 +162,6 @@ fun MovieHeader(vm: MovieDescriptionViewModel) {
             modifier = Modifier
                 .widthIn(0.dp, 200.dp)
                 .align(Alignment.CenterVertically),
-            maxLines = 1,
             textAlign = TextAlign.Center
         )
 
@@ -191,7 +200,7 @@ fun MovieHeader(vm: MovieDescriptionViewModel) {
 @Composable
 fun Description(vm: MovieDescriptionViewModel) {
     Text(
-        text = vm.description,
+        text = vm.description.value,
         style = TextStyle(
             color = Color.White,
             fontSize = 17.sp
@@ -224,8 +233,11 @@ fun MovieGenresList(vm: MovieDescriptionViewModel) {
         modifier = Modifier
             .padding(16.dp, 10.dp, 16.dp, 0.dp),
     ) {
-        repeat(vm.genres.size) { i ->
-            MovieGenreLabel(vm.genres[i])
+        vm.genres.value?.let {
+            repeat(it.size) { i ->
+                if (vm.genres.value != null)
+                    MovieGenreLabel(vm.genres.value!![i].name)
+            }
         }
     }
 }
@@ -235,7 +247,7 @@ fun MovieGenresList(vm: MovieDescriptionViewModel) {
 fun MovieGenreLabel(genre: String) {
     Box (
         modifier = Modifier
-            .padding(4.dp, 4.dp)
+            .padding(0.dp, 4.dp, 4.dp, 4.dp)
             .clip(shape = RoundedCornerShape(8.dp))
             .background(AccentColor)
     ) {
@@ -269,19 +281,18 @@ fun AboutMovie() {
 // Информация о фильме
 @Composable
 fun MovieInfo(vm: MovieDescriptionViewModel) {
-
     Column(
         modifier = Modifier
             .padding(16.dp, 10.dp)
     ) {
-        InfoRow("Год", "1990")
-        InfoRow("Страна", "США, Австралия")
-        InfoRow("Слоган", "Добро пожаловать в реальный мир")
-        InfoRow("Режиссёр", "Лана Вачовски, Лилли Вачовски")
-        InfoRow("Бюджет", "$63 000 000")
-        InfoRow("Сборы в мире", "$463 517 383")
-        InfoRow("Возраст", "16+")
-        InfoRow("Время", "136 мин")
+        InfoRow("Год", vm.year.value.toString().replace("-1", ""))
+        InfoRow("Страна", vm.country.value)
+        InfoRow("Слоган", vm.slogan.value)
+        InfoRow("Режиссёр", vm.director.value)
+        InfoRow("Бюджет", vm.budget.value)
+        InfoRow("Сборы в мире", vm.fees.value)
+        InfoRow("Возраст", vm.ageLimit.value)
+        InfoRow("Время", vm.time.value)
     }
 }
 
@@ -362,21 +373,25 @@ fun FeedbackLable() {
 // Список отзывов
 @Composable
 fun FeedbackList(vm: MovieDescriptionViewModel) {
-    FeedbackElement(true, false)
-    FeedbackElement(false, true)
+    repeat(vm.reviews.value?.size ?: 0) { i ->
+        FeedbackElement(vm.reviews.value?.get(i))
+    }
 }
 
 // Элемент списка отзывов
 @Composable
-fun FeedbackElement(isOurs: Boolean, isAnonimous: Boolean) {
+fun FeedbackElement(review: ReviewDetails?) {
+    if (review == null)
+        return
+
     Column(
         modifier = Modifier
-            .padding(16.dp, 10.dp)
+            .padding(16.dp, 10.dp, 8.dp, 0.dp)
     ) {
-        FeedbackHeader(isOurs, isAnonimous)
+        FeedbackHeader(review)
 
         Text(
-            text = "Сразу скажу, что фильм мне понравился. Люблю всех актеров. Все круто, даже слишком!",
+            text = review.reviewText ?: "",
             style = TextStyle(
                 color = Color.White,
                 fontSize = 16.sp
@@ -385,33 +400,49 @@ fun FeedbackElement(isOurs: Boolean, isAnonimous: Boolean) {
                 .padding(0.dp, 8.dp, 0.dp, 4.dp)
         )
 
+        val day = review.createDateTime.slice(8..9)
+        val month = review.createDateTime.slice(5..6)
+        val year = review.createDateTime.slice(0..3)
+
         Text(
-            text = "07.10.2023",
+            text = "${day}.${month}.${year}",
             style = TextStyle(
                 color = Gray90,
                 fontSize = 14.sp
             )
         )
     }
-
 }
 
 // Заголовок отзыва
 @Composable
-fun FeedbackHeader(isOurs: Boolean, isAnonimous: Boolean) {
+fun FeedbackHeader(review: ReviewDetails) {
+    val isOurs = false
+
     Row {
         // Аватарка
-        Image(
-            painter = if (isAnonimous)
-                painterResource(id = R.drawable.anonimous)
-            else
-                painterResource(id = R.drawable.media4),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(45.dp)
-                .clip(shape = CircleShape)
-        )
+        val avatar = review.author.avatar
+
+        if (avatar != null && !review.isAnonymous) {
+            AsyncImage(
+                model = avatar,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(45.dp)
+                    .clip(shape = CircleShape)
+            )
+        }
+        else {
+            Image(
+                painter = painterResource(id = R.drawable.anonimous),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(45.dp)
+                    .clip(shape = CircleShape)
+            )
+        }
 
         // Имя пользователя
         Column(
@@ -420,10 +451,10 @@ fun FeedbackHeader(isOurs: Boolean, isAnonimous: Boolean) {
                 .align(Alignment.CenterVertically),
         ) {
             Text(
-                text = if (isAnonimous)
+                text = if (review.isAnonymous)
                     "Анонимный пользователь"
                 else
-                    "Ivan ivan ivan",
+                    review.author.nickName ?: "Анонимный пользователь",
                 style = TextStyle(
                     fontSize = 16.sp,
                     color = Color.White,
@@ -444,13 +475,14 @@ fun FeedbackHeader(isOurs: Boolean, isAnonimous: Boolean) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val rateNum = 9f
+        val rateNum = review.rating
 
         // Оценка
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
-                .background(darkGreen).background(
+                .background(darkGreen)
+                .background(
                     when {
                         rateNum >= 9 -> darkGreen
                         rateNum >= 8 -> lightGreen
@@ -459,7 +491,8 @@ fun FeedbackHeader(isOurs: Boolean, isAnonimous: Boolean) {
                         rateNum >= 3 -> fire
                         else -> darkRed
                     }
-                ).padding(8.dp, 2.dp)
+                )
+                .padding(8.dp, 2.dp)
                 .align(Alignment.CenterVertically)
         ) {
             Image(

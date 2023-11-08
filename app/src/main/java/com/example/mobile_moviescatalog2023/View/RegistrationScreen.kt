@@ -10,10 +10,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -77,6 +78,9 @@ fun Calendar(viewModel: RegistrationViewModel) {
 
     if (viewModel.isClicked.value){
         DatePickerDialog(
+            colors = DatePickerDefaults.colors(
+                containerColor = Color(0xFF303030)
+            ),
             onDismissRequest = {
                 viewModel.isClicked.value = false
             },
@@ -98,7 +102,30 @@ fun Calendar(viewModel: RegistrationViewModel) {
                 }
             }
         ){
-            DatePicker(state = datePickerState)
+            DatePicker(
+                state = datePickerState,
+                Modifier.background(Color(0xFF303030)),
+
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color(0xFF303030),
+                    titleContentColor = Color.White,
+                    headlineContentColor = AccentColor,
+                    weekdayContentColor = Color.White,
+                    subheadContentColor = Color.White,
+                    yearContentColor = Color.White,
+                    currentYearContentColor = Color.White,
+                    selectedYearContentColor = AccentColor,
+                    selectedYearContainerColor = Color.White,
+                    dayContentColor = Color.White,
+                    disabledDayContentColor = GrayC4,
+                    selectedDayContentColor = Color.White,
+                    disabledSelectedDayContentColor = Color.White,
+                    selectedDayContainerColor = AccentColor,
+                    todayContentColor = Color.White,
+                    todayDateBorderColor = AccentColor,
+                    dayInSelectionRangeContentColor = Color.White
+                )
+            )
         }
     }
 }
