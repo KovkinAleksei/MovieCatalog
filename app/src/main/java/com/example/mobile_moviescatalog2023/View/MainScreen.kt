@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalLayoutApi::class)
+
 package com.example.mobile_moviescatalog2023.View
 
 import android.annotation.SuppressLint
@@ -181,38 +183,14 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
                         )
                     )
                 }
-
-                Row(
+                
+                FlowRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                ){
-                    if (movie.genres.size >= 1)
-                        GenreLabel(movie.genres[0].name)
-                    if (movie.genres.size >=2)
-                        GenreLabel(movie.genres[1].name)
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                ){
-                    if (movie.genres.size >=3)
-                        GenreLabel(movie.genres[2].name)
-                    if (movie.genres.size >=4)
-                        GenreLabel(movie.genres[3].name)
-
-                    if (movie.genres.size > 4){
-                        Text(
-                            text = "...",
-                            style = TextStyle(
-                                color = Color.White,
-                                fontSize = 14.sp
-                            ),
-                            modifier = Modifier
-                                .padding(4.dp, 8.dp, 16.dp, 0.dp)
-                        )
+                ) {
+                    movie.genres.forEach { 
+                        it -> GenreLabel(genre = it.name)
                     }
                 }
             }
@@ -226,7 +204,7 @@ fun GenreLabel(genre: String) {
     Box (
         modifier = Modifier
             .padding(2.dp)
-            .clip(shape = RoundedCornerShape(4.dp))
+            .clip(shape = RoundedCornerShape(6.dp))
             .background(Gray40)
     ) {
         Text(
