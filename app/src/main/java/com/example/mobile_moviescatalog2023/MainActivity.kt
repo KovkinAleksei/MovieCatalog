@@ -141,7 +141,7 @@ class MainActivity : ComponentActivity() {
 
                         // Экран с описанием фильма
                         composable(
-                            "movie_description_screen/{id}",
+                            "${descriptionScreen}/{id}",
                             arguments = listOf(navArgument("id") {type = NavType.StringType})
                         ) {
                             navBackStackEntry ->

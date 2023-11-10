@@ -46,11 +46,13 @@ fun MainScreen(navController: NavController) {
     val viewModel: MainScreenViewModel = viewModel()
     val moviesResponse = rememberSaveable { mutableStateOf<List<Movie>?>(null) }
     val listState = rememberLazyListState()
+    val isLoaded = rememberSaveable {mutableStateOf(false)}
+    val isLoading = rememberSaveable {mutableStateOf(true)}
 
     if (viewModel.isInitialized == false)
-        viewModel.getMovies(moviesResponse)
+        viewModel.getMovies(moviesResponse, isLoaded, isLoading)
 
-    if (moviesResponse.value != null){
+    if (isLoaded.value){
         Scaffold (
             bottomBar = {
                 BottomNavBar(navController)
@@ -69,7 +71,7 @@ fun MainScreen(navController: NavController) {
                     MovieElement(viewModel, movie, navController)
                 }
                 item {
-                    if (viewModel.isLoading) {
+                    if (isLoading.value) {
                         Box(
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -93,8 +95,9 @@ fun MainScreen(navController: NavController) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo }
             .collect { visibleItems ->
                 val lastVisibleItem = visibleItems.lastOrNull()
-                if (lastVisibleItem != null && lastVisibleItem.index == listState.layoutInfo.totalItemsCount - 1 && !viewModel.isLoading) {
-                    viewModel.getMovies(moviesResponse)
+
+                if (lastVisibleItem != null && lastVisibleItem.index == listState.layoutInfo.totalItemsCount - 1 && !isLoading.value) {
+                    viewModel.getMovies(moviesResponse, isLoaded, isLoading)
                 }
             }
     }
@@ -145,7 +148,7 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
             .clickable(
                 enabled = true,
                 onClick = {
-                    navController.navigate("movie_description_screen/${movie.id}")
+                    navController.navigate("${descriptionScreen}/${movie.id}")
                 }
             )
     ) {
@@ -160,11 +163,11 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
 
                 Rating(vm, movie)
             }
-            Column(
-                modifier = Modifier
-                    .padding(10.dp, 0.dp)
-            ){
-                Column {
+            Box{
+                Column(
+                    modifier = Modifier
+                        .padding(10.dp, 0.dp, 45.dp, 0.dp)
+                ) {
                     Text(
                         text = movie.name,
                         style = TextStyle(
@@ -182,15 +185,61 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
                             fontSize = 14.sp
                         )
                     )
+
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(0.dp, 0.dp, 16.dp, 0.dp)
+                    ) {
+                        movie.genres.forEach {
+                                it -> GenreLabel(genre = it.name)
+                        }
+                    }
                 }
-                
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 0.dp, 16.dp, 0.dp)
-                ) {
-                    movie.genres.forEach { 
-                        it -> GenreLabel(genre = it.name)
+
+                val rating = vm.movieRatings[movie.id]
+
+                if (rating != null && rating != -1f) {
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .align(Alignment.TopEnd)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(darkGreen)
+                                .background(
+                                    when {
+                                        rating >= 9 -> darkGreen
+                                        rating >= 8 -> lightGreen
+                                        rating >= 6 -> yellow
+                                        rating >= 4 -> orange
+                                        rating >= 3 -> fire
+                                        else -> darkRed
+                                    }
+                                )
+                                .padding(8.dp, 2.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.comment_star),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                            )
+
+                            Text(
+                                text = rating.toInt().toString(),
+                                style = TextStyle(
+                                    fontSize = 17.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .padding(4.dp, 0.dp, 0.dp, 0.dp)
+                            )
+                        }
                     }
                 }
             }
