@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.ReviewDetails
+import com.example.mobile_moviescatalog2023.ViewModel.FavouriteScreenViewModel
 import com.example.mobile_moviescatalog2023.ViewModel.MovieDescriptionViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
@@ -56,7 +57,7 @@ fun MovieDescriptonScreen(id: String?, onBackButtonClick: () -> Unit) {
                 MovieGenresList(vm)
                 AboutMovie()
                 MovieInfo(vm)
-                FeedbackLable()
+                FeedbackLable(vm)
                 FeedbackList(vm)
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -81,7 +82,7 @@ fun TopBar(onBackButtonClick: () -> Unit) {
 // Постер с фильмом
 @Composable
 fun MoviePoster(vm: MovieDescriptionViewModel) {
-    Box (){
+    Box{
         val density = LocalDensity.current.density
 
         AsyncImage(
@@ -89,7 +90,7 @@ fun MoviePoster(vm: MovieDescriptionViewModel) {
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(0.725f),
+                .height(500.dp),
             contentScale = ContentScale.Crop
         )
 
@@ -332,7 +333,7 @@ fun InfoRow(name: String, description: String) {
 
 // Надпись Отзывы
 @Composable
-fun FeedbackLable() {
+fun FeedbackLable(vm: MovieDescriptionViewModel) {
     Row(
         modifier = Modifier
             .padding(16.dp, 8.dp, 16.dp, 0.dp)
@@ -350,47 +351,60 @@ fun FeedbackLable() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box(
-            modifier = Modifier
-                .size(35.dp)
-                .align(Alignment.CenterVertically)
-                .clip(shape = CircleShape)
-                .background(AccentColor)
-                .clickable(
-                    enabled = true,
-                    onClick = { }
-                )
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.plus),
-                contentDescription = null,
+        val feedbackIsLeft = vm.ourFeedbackIsFound
+
+        if (!feedbackIsLeft.value) {
+            Box(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(25.dp)
-            )
+                    .size(35.dp)
+                    .align(Alignment.CenterVertically)
+                    .clip(shape = CircleShape)
+                    .background(AccentColor)
+                    .clickable(
+                        enabled = true,
+                        onClick = { }
+                    )
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.plus),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(25.dp)
+                )
+            }
         }
+
     }
 }
 
 // Список отзывов
 @Composable
 fun FeedbackList(vm: MovieDescriptionViewModel) {
+    FeedbackElement(
+        review = vm.reviews.value?.find { it ->
+            vm.isOursFeedback(it)
+        }, vm = vm)
+
     repeat(vm.reviews.value?.size ?: 0) { i ->
-        FeedbackElement(vm.reviews.value?.get(i))
+        val review = vm.reviews.value?.get(i)
+
+        if (!vm.isOursFeedback(review))
+            FeedbackElement(vm.reviews.value?.get(i), vm)
     }
 }
 
 // Элемент списка отзывов
 @Composable
-fun FeedbackElement(review: ReviewDetails?) {
+fun FeedbackElement(review: ReviewDetails?, vm: MovieDescriptionViewModel) {
     if (review == null)
         return
 
     Column(
         modifier = Modifier
-            .padding(16.dp, 10.dp, 8.dp, 0.dp)
+            .padding(16.dp, 10.dp, 16.dp, 0.dp)
     ) {
-        FeedbackHeader(review)
+        FeedbackHeader(review, vm)
 
         Text(
             text = review.reviewText ?: "",
@@ -418,8 +432,8 @@ fun FeedbackElement(review: ReviewDetails?) {
 
 // Заголовок отзыва
 @Composable
-fun FeedbackHeader(review: ReviewDetails) {
-    val isOurs = false
+fun FeedbackHeader(review: ReviewDetails, vm: MovieDescriptionViewModel) {
+    val isOurs = vm.isOursFeedback(review)
 
     Row {
         // Аватарка
@@ -517,10 +531,13 @@ fun FeedbackHeader(review: ReviewDetails) {
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+       // Spacer(modifier = Modifier.width(8.dp))
 
         // Изменение отзыва
         if (isOurs) {
+
+            Spacer(modifier = Modifier.width(8.dp))
+
             Box(
                 modifier = Modifier
                     .size(28.dp)

@@ -166,7 +166,7 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
             Box{
                 Column(
                     modifier = Modifier
-                        .padding(10.dp, 0.dp, 45.dp, 0.dp)
+                        .padding(10.dp, 0.dp, 50.dp, 0.dp)
                 ) {
                     Text(
                         text = movie.name,

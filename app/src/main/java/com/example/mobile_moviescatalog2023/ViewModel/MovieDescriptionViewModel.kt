@@ -31,9 +31,10 @@ class MovieDescriptionViewModel: ViewModel() {
     val reviews: MutableState<List<ReviewDetails>?> = mutableStateOf(null)
     var isInitialized = false
     var isFavorite = mutableStateOf(false)
+    var ourFeedbackIsFound = mutableStateOf(false)
 
     private var favoriteMoviesList: List<Movie> = listOf()
-
+    private var userId: String = ""
     private var movieDetails: MovieDetailsResponse? = null
 
     // Заполнение экрана значениями
@@ -65,6 +66,26 @@ class MovieDescriptionViewModel: ViewModel() {
         isInitialized = true
     }
 
+    // Проверка принадлежности отзыва
+    fun isOursFeedback(review: ReviewDetails?) : Boolean {
+        if (review?.author?.userId ?: "" == userId) {
+            ourFeedbackIsFound.value = true
+            return true
+        }
+
+        return false
+    }
+
+    // Получение данных профиля из Api
+    private suspend fun getProfile() {
+        val profileRetrofit = RetrofitImplementation()
+        val api = profileRetrofit.getProfileImplementation()
+
+        val response = api.getProfile(token = "Bearer ${AuthorizationToken.token}")
+
+        userId = response.id
+    }
+
     // Получение подробной информации о фильме
     fun getMovieDetails(id: String?, isLoaded: MutableState<Boolean> ) {
         val retrofit = RetrofitImplementation()
@@ -76,6 +97,7 @@ class MovieDescriptionViewModel: ViewModel() {
 
             fillValues()
             getFavoriteMovies(isLoaded)
+            getProfile()
         }
     }
 
