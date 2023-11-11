@@ -9,8 +9,10 @@ import com.example.mobile_moviescatalog2023.Repository.Login.LoginApi
 import com.example.mobile_moviescatalog2023.Repository.Login.LogoutApi
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.MovieDetailsApi
 import com.example.mobile_moviescatalog2023.Repository.Movies.MovieApi
-import com.example.mobile_moviescatalog2023.Repository.Movies.MoviesResponse
 import com.example.mobile_moviescatalog2023.Repository.Registration.RegistrationApi
+import com.example.mobile_moviescatalog2023.Repository.Review.AddReviewApi
+import com.example.mobile_moviescatalog2023.Repository.Review.DeleteReviewApi
+import com.example.mobile_moviescatalog2023.Repository.Review.EditReviewApi
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.GetProfileApi
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.PutProfileApi
 import okhttp3.MediaType.Companion.toMediaType
@@ -71,6 +73,18 @@ class RetrofitImplementation {
     }
 
     fun deleteFavouriteMoviesImplementation(): DeleteFavouriteMovieApi {
+        return retrofit.create()
+    }
+
+    fun addReviewImplementation(): AddReviewApi {
+        return retrofit.create()
+    }
+
+    fun editReviewImplementation(): EditReviewApi {
+        return retrofit.create()
+    }
+
+    fun deleteReviewImplementation(): DeleteReviewApi {
         return retrofit.create()
     }
 }

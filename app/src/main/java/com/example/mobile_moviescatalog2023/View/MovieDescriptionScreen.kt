@@ -7,6 +7,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +30,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.ReviewDetails
-import com.example.mobile_moviescatalog2023.ViewModel.FavouriteScreenViewModel
 import com.example.mobile_moviescatalog2023.ViewModel.MovieDescriptionViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
@@ -40,8 +40,11 @@ fun MovieDescriptonScreen(id: String?, onBackButtonClick: () -> Unit) {
     val vm: MovieDescriptionViewModel = viewModel()
     val isLoaded = remember{ mutableStateOf(false) }
 
-    if (!vm.isInitialized)
+    if (!vm.isInitialized.value) {
+        isLoaded.value = false
         vm.getMovieDetails(id, isLoaded)
+    }
+
 
     if (isLoaded.value) {
         Scaffold(
@@ -62,6 +65,9 @@ fun MovieDescriptonScreen(id: String?, onBackButtonClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
+
+        if (vm.isEditingFeedback.value)
+            FeedbackDialog(vm)
     }
 }
 
@@ -362,7 +368,9 @@ fun FeedbackLable(vm: MovieDescriptionViewModel) {
                     .background(AccentColor)
                     .clickable(
                         enabled = true,
-                        onClick = { }
+                        onClick = {
+                            vm.editFeedback()
+                        }
                     )
             ) {
                 Image(
@@ -405,28 +413,117 @@ fun FeedbackElement(review: ReviewDetails?, vm: MovieDescriptionViewModel) {
             .padding(16.dp, 10.dp, 16.dp, 0.dp)
     ) {
         FeedbackHeader(review, vm)
-
-        Text(
-            text = review.reviewText ?: "",
-            style = TextStyle(
-                color = Color.White,
-                fontSize = 16.sp
-            ),
+        Box(
             modifier = Modifier
-                .padding(0.dp, 8.dp, 0.dp, 4.dp)
-        )
+                .fillMaxWidth()
+        ){
+            Column {
+                Text(
+                    text = review.reviewText ?: "",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp
+                    ),
+                    modifier = Modifier
+                        .padding(0.dp, 8.dp, 0.dp, 4.dp)
+                )
 
-        val day = review.createDateTime.slice(8..9)
-        val month = review.createDateTime.slice(5..6)
-        val year = review.createDateTime.slice(0..3)
+                val day = review.createDateTime.slice(8..9)
+                val month = review.createDateTime.slice(5..6)
+                val year = review.createDateTime.slice(0..3)
 
-        Text(
-            text = "${day}.${month}.${year}",
-            style = TextStyle(
-                color = Gray90,
-                fontSize = 14.sp
-            )
-        )
+                Text(
+                    text = "${day}.${month}.${year}",
+                    style = TextStyle(
+                        color = Gray90,
+                        fontSize = 14.sp
+                    )
+                )
+            }
+
+            if (vm.isShowingOptions.value && vm.isOursFeedback(review)) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .width(170.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Gray40)
+                ){
+                    Row(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .padding(8.dp, 0.dp)
+                            .clickable(
+                                enabled = true,
+                                onClick = {
+                                    vm.editFeedback()
+                                }
+                            )
+                    ) {
+                        Text(
+                            text = "Редактировать",
+                            style = TextStyle(
+                                color = Color.White,
+                                fontSize = 14.sp
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                        )
+
+                        Spacer(Modifier.weight(1f))
+
+                        Image(
+                            painter = painterResource(id = R.drawable.pencil),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .size(25.dp)
+                        )
+                    }
+
+                    Divider(
+                        modifier = Modifier
+                            .height(1.dp)
+                            .background(Gray54)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .padding(8.dp, 0.dp)
+                            .clickable(
+                                enabled = true,
+                                onClick = {
+                                    vm.deleteReview()
+                                }
+                            )
+                    ) {
+                        Text(
+                            text = "Удалить",
+                            style = TextStyle(
+                                color = darkRed,
+                                fontSize = 14.sp
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                        )
+
+                        Spacer(Modifier.weight(1f))
+
+                        Image(
+                            painter = painterResource(id = R.drawable.delete_bin),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .size(25.dp)
+                        )
+                    }
+                }
+            }
+
+
+        }
+
     }
 }
 
@@ -531,8 +628,6 @@ fun FeedbackHeader(review: ReviewDetails, vm: MovieDescriptionViewModel) {
             )
         }
 
-       // Spacer(modifier = Modifier.width(8.dp))
-
         // Изменение отзыва
         if (isOurs) {
 
@@ -546,7 +641,9 @@ fun FeedbackHeader(review: ReviewDetails, vm: MovieDescriptionViewModel) {
                     .background(Gray40)
                     .clickable(
                         enabled = true,
-                        onClick = { }
+                        onClick = {
+                            vm.openOptions()
+                        }
                     )
             ) {
                 Image(

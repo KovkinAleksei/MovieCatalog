@@ -8,6 +8,7 @@ import com.example.mobile_moviescatalog2023.Domain.Movie
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.MovieDetailsResponse
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.ReviewDetails
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
+import com.example.mobile_moviescatalog2023.Repository.Review.ReviewBody
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,6 +19,7 @@ class MovieDescriptionViewModel: ViewModel() {
     val moviePoster = mutableStateOf("")
     val movieRating = mutableStateOf("")
     val movieName = mutableStateOf("")
+    val movieId = mutableStateOf("")
     val description = mutableStateOf("")
     val genres: MutableState<List<Genre>?> = mutableStateOf(null)
     val year = mutableStateOf(0)
@@ -29,9 +31,12 @@ class MovieDescriptionViewModel: ViewModel() {
     val ageLimit = mutableStateOf("")
     val time = mutableStateOf("")
     val reviews: MutableState<List<ReviewDetails>?> = mutableStateOf(null)
-    var isInitialized = false
+    var isInitialized = mutableStateOf(false)
     var isFavorite = mutableStateOf(false)
     var ourFeedbackIsFound = mutableStateOf(false)
+    val isShowingOptions = mutableStateOf(false)
+    val isEditingFeedback = mutableStateOf(false)
+    var myReview: ReviewDetails? = null
 
     private var favoriteMoviesList: List<Movie> = listOf()
     private var userId: String = ""
@@ -41,6 +46,7 @@ class MovieDescriptionViewModel: ViewModel() {
     private fun fillValues() {
         movieName.value = movieDetails?.name ?: ""
         moviePoster.value = movieDetails?.poster ?: ""
+        movieId.value = movieDetails?.id ?: ""
         movieRating.value = getMovieRating(movieDetails?.reviews)
         description.value = movieDetails?.description ?: ""
         genres.value = movieDetails?.genres
@@ -63,13 +69,14 @@ class MovieDescriptionViewModel: ViewModel() {
         time.value = "${movieDetails?.time} мин."
         reviews.value = movieDetails?.reviews
 
-        isInitialized = true
+        isInitialized.value = true
     }
 
     // Проверка принадлежности отзыва
     fun isOursFeedback(review: ReviewDetails?) : Boolean {
         if (review?.author?.userId ?: "" == userId) {
             ourFeedbackIsFound.value = true
+            myReview = review
             return true
         }
 
@@ -147,5 +154,48 @@ class MovieDescriptionViewModel: ViewModel() {
         val avg = reviews.sumOf { it -> it.rating.toDouble() } / reviews.size.toFloat()
 
         return String.format("%.1f", avg)
+    }
+
+    // Удаление отзыва
+    fun deleteReview() {
+        val retrofit = RetrofitImplementation()
+        val api = retrofit.deleteReviewImplementation()
+
+        CoroutineScope(Dispatchers.Default).launch {
+            api.deleteReview(
+                movieId = movieId.value,
+                reviewId = myReview?.id ?: "",
+                token = "Bearer ${AuthorizationToken.token}"
+            )
+
+            myReview = null
+            ourFeedbackIsFound.value = false
+        }
+
+        updateFeedback()
+    }
+
+    // Раскрытие действий над отзывом
+    fun openOptions() {
+        isShowingOptions.value = !isShowingOptions.value
+    }
+
+    // Редактирование отзыва
+    fun editFeedback() {
+        isEditingFeedback.value = true
+    }
+
+    // Обновление отзыва
+    fun updateFeedback() {
+        isShowingOptions.value = false
+        isEditingFeedback.value = false
+
+        isInitialized.value = false
+    }
+
+    // Отмена написания отзыва
+    fun closeFeedbackDialog() {
+        isShowingOptions.value = false
+        isEditingFeedback.value = false
     }
 }
