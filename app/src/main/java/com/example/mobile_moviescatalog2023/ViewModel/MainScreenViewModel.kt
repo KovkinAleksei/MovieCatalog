@@ -2,7 +2,7 @@ package com.example.mobile_moviescatalog2023.ViewModel
 
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
-import com.example.mobile_moviescatalog2023.Domain.Movie
+import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.ReviewDetails
 import com.example.mobile_moviescatalog2023.Repository.Movies.MoviesResponse
 import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation

@@ -1,6 +1,7 @@
 package com.example.mobile_moviescatalog2023.ViewModel
 
 import android.icu.text.SimpleDateFormat
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.mobile_moviescatalog2023.Repository.Login.LoginBody
@@ -23,12 +24,9 @@ class ProfileViewModel: ViewModel() {
     val birthDate = mutableStateOf("")
     val isClicked = mutableStateOf(false)
     val isSaveAvailable = mutableStateOf(false)
+    var isInitialized = false
 
     private var profileResponse: UserProfile? = null
-
-    init {
-        getProfile()
-    }
 
     // Выход из профиля
     fun exit() {
@@ -113,7 +111,9 @@ class ProfileViewModel: ViewModel() {
     }
 
     // Получение данных профиля из Api
-    fun getProfile() {
+    fun getProfile(isLoaded: MutableState<Boolean>) {
+        isInitialized = true
+
         val profileRetrofit = RetrofitImplementation()
         val api = profileRetrofit.getProfileImplementation()
 
@@ -122,6 +122,8 @@ class ProfileViewModel: ViewModel() {
             profileResponse = response
 
             getValues()
+
+            isLoaded.value = true
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.example.mobile_moviescatalog2023.Repository.MovieDetails
 
-import com.example.mobile_moviescatalog2023.Domain.Genre
+import com.example.mobile_moviescatalog2023.Repository.Movies.Genre
 
 @kotlinx.serialization.Serializable
 class MovieDetailsResponse(

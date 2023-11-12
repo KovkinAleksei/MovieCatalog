@@ -35,23 +35,6 @@ fun RegistrationOrLoginScreen(
     }
 }
 
-// Заголовок Fильмус
-@Composable
-fun FilmusHeader() {
-    Text(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .padding(16.dp),
-        text = stringResource(id = R.string.cinema_name),
-        textAlign = TextAlign.Center,
-        color = AccentColor,
-        style = TextStyle(
-            fontSize = 20.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-    )
-}
-
 // Картинка на экране выбора регистрации/входа
 @Composable
 fun MovieIcon() {

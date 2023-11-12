@@ -88,6 +88,7 @@ fun RatingStars(vm: FeedbackViewModel) {
                         enabled = true,
                         onClick = {
                             vm.rating.value = i + 1
+                            vm.checkFilling()
                         }
                     )
             )
@@ -104,6 +105,7 @@ fun FeedbackText(vm: FeedbackViewModel) {
         value = vm.message.value,
         onValueChange = {
             vm.message.value = it
+            vm.checkFilling()
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -179,7 +181,11 @@ fun AnonymousFeedback(vm: FeedbackViewModel) {
 // Кнопка Сохранить
 @Composable
 fun FeedbackSaveButton(vm: FeedbackViewModel, descriptionVm: MovieDescriptionViewModel) {
+    vm.checkFilling()
+    val isEnabled by remember { vm.isFilled }
+
     Button(
+        enabled = isEnabled,
         onClick = {
             vm.saveFeedback()
             descriptionVm.updateFeedback()
@@ -201,7 +207,7 @@ fun FeedbackSaveButton(vm: FeedbackViewModel, descriptionVm: MovieDescriptionVie
         Text (
             text = stringResource(id = R.string.save),
             style = TextStyle(
-                color = Color.White,
+                color = if (isEnabled) Color.White else WhiteTransparent,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp
             )

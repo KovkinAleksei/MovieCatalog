@@ -5,22 +5,28 @@ package com.example.mobile_moviescatalog2023.View
 import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,52 +51,150 @@ fun MovieDescriptonScreen(id: String?, onBackButtonClick: () -> Unit) {
         vm.getMovieDetails(id, isLoaded)
     }
 
-
     if (isLoaded.value) {
+        val listState = rememberLazyListState()
+        val isScrolled = remember {mutableStateOf(false)}
+
         Scaffold(
             topBar = {
-                TopBar(onBackButtonClick)
+                Column {
+                    TopBar(onBackButtonClick, vm, isScrolled.value)
+
+                    if (isScrolled.value) {
+                        Divider(
+                            modifier = Modifier
+                                .height(1.dp)
+                                .background(Gray40)
+                        )
+                    }
+                }
             }
         ) {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                MoviePoster(vm)
-                MovieHeader(vm)
-                Description(vm)
-                MovieGenres()
-                MovieGenresList(vm)
-                AboutMovie()
-                MovieInfo(vm)
-                FeedbackLable(vm)
-                FeedbackList(vm)
-                Spacer(modifier = Modifier.height(10.dp))
+            LazyColumn(
+                state = listState
+            ) {
+                item {
+                    MoviePoster(vm, listState)
+                }
+                item {
+                    MovieHeader(vm)
+                }
+                item {
+                    Description(vm)
+                    MovieGenres()
+                    MovieGenresList(vm)
+                    AboutMovie()
+                    MovieInfo(vm)
+                    FeedbackLable(vm)
+                    FeedbackList(vm)
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
             }
+        }
+
+        LaunchedEffect(listState) {
+            snapshotFlow { listState.firstVisibleItemIndex }
+                .collect { index ->
+                    isScrolled.value = index > 1
+                }
         }
 
         if (vm.isEditingFeedback.value)
             FeedbackDialog(vm)
     }
+    else {
+        LoadingScreen()
+    }
 }
 
 // Верхняя часть экрана
 @Composable
-fun TopBar(onBackButtonClick: () -> Unit) {
-    Box(
+fun TopBar(onBackButtonClick: () -> Unit, vm: MovieDescriptionViewModel, isScrolled: Boolean) {
+    Row(
         modifier = Modifier
-            .padding(16.dp, 10.dp, 0.dp, 10.dp)
+            .padding(16.dp, 0.dp, 16.dp, 0.dp)
+            .height(if (isScrolled) 49.dp else 50.dp)
             .fillMaxWidth()
     ) {
-        BackButton {
-            onBackButtonClick()
+        Image (
+            modifier = Modifier
+                .height(30.dp)
+                .size(7.dp)
+                .width(40.dp)
+                .align(Alignment.CenterVertically)
+                .clickable(
+                    enabled = true,
+                    onClick = { onBackButtonClick() }
+                ),
+            imageVector = ImageVector.vectorResource(id = R.drawable.back_arrow),
+            contentDescription = null
+        )
+
+        if (isScrolled) {
+            // Название фильма
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = vm.movieName.value,
+                style = TextStyle(
+                    fontSize = 26.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1,
+                modifier = Modifier
+                    .widthIn(0.dp, 200.dp)
+                    .align(Alignment.CenterVertically),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Кнопка добавления в избранное / удаления из избранных
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .align(Alignment.CenterVertically)
+                    .clip(shape = CircleShape)
+                    .background(Gray40)
+                    .clickable(
+                        enabled = true,
+                        onClick = {
+                            if (!vm.isFavorite.value)
+                                vm.addToFavourites()
+                            else
+                                vm.deleteFromFavourites()
+                        }
+                    )
+            ) {
+                Image(
+                    painter =if (vm.isFavorite.value)
+                        painterResource(id = R.drawable.red_heart)
+                    else
+                        painterResource(id = R.drawable.heart),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(25.dp)
+                )
+            }
         }
+
     }
 }
 
 // Постер с фильмом
 @Composable
-fun MoviePoster(vm: MovieDescriptionViewModel) {
-    Box{
-        val density = LocalDensity.current.density
+fun MoviePoster(vm: MovieDescriptionViewModel, listState: LazyListState) {
+    val density = LocalDensity.current.density
 
+    Box(
+        modifier = Modifier
+            .graphicsLayer {
+                translationY = listState.firstVisibleItemScrollOffset / 3f
+                alpha = (-1f / (500 * density) * listState.firstVisibleItemScrollOffset + 1)
+            }
+    ){
         AsyncImage(
             model = vm.moviePoster.value,
             contentDescription = null,
@@ -177,7 +281,7 @@ fun MovieHeader(vm: MovieDescriptionViewModel) {
         // Кнопка добавления в избранное / удаления из избранных
         Box(
             modifier = Modifier
-                .size(45.dp)
+                .size(40.dp)
                 .align(Alignment.CenterVertically)
                 .clip(shape = CircleShape)
                 .background(Gray40)

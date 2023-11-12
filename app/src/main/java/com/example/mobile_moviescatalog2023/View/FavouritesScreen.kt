@@ -3,12 +3,9 @@
 package com.example.mobile_moviescatalog2023.View
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.mobile_moviescatalog2023.Domain.Movie
+import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
 import com.example.mobile_moviescatalog2023.ViewModel.FavouriteScreenViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
@@ -38,29 +35,32 @@ import com.example.mobile_moviescatalog2023.ui.theme.*
 fun FavouritesScreen(navController: NavController) {
     val vm: FavouriteScreenViewModel = viewModel()
 
-    if (!vm.isLoaded.value)
-        return
+    if (vm.isLoaded.value){
+        Scaffold(
+            bottomBar = {
+                BottomNavBar(navController)
+            }) {
+            Column{
+                FavouritesHeader()
 
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(navController)
-        }) {
-        Column{
-            FavouritesHeader()
-
-            if (vm.favoriteMoviesList?.isEmpty() == true) {
-                EmptyFavouriteScreen()
-            }
-            else {
-                FilledScreen(vm)
+                if (vm.favoriteMoviesList?.isEmpty() == true) {
+                    EmptyFavouriteScreen()
+                }
+                else {
+                    FilledScreen(vm, navController)
+                }
             }
         }
     }
+    else {
+        LoadingScreen()
+    }
+
 }
 
 // Экран с наполненным списком любимых фильмов
 @Composable
-fun FilledScreen(vm: FavouriteScreenViewModel) {
+fun FilledScreen(vm: FavouriteScreenViewModel, navController: NavController) {
     var index = 0
 
     Column(
@@ -70,22 +70,20 @@ fun FilledScreen(vm: FavouriteScreenViewModel) {
     ) {
         while (index < vm.favoriteMoviesList?.size ?: 0) {
             if (index % 3 != 2) {
-                DoubleMovieRow(vm, index)
+                DoubleMovieRow(vm, index, navController)
                 index += 2
             }
             else {
-                SingleMovieRow(vm, index)
+                SingleMovieRow(vm, index, navController)
                 index++
             }
         }
-
-       // Spacer(Modifier.height(70.dp))
     }
 }
 
 // Строка с двумя фильмами
 @Composable
-fun DoubleMovieRow(vm: FavouriteScreenViewModel, index: Int) {
+fun DoubleMovieRow(vm: FavouriteScreenViewModel, index: Int, navController: NavController) {
     Row(
         modifier = Modifier
             .padding(16.dp, 0.dp)
@@ -95,7 +93,7 @@ fun DoubleMovieRow(vm: FavouriteScreenViewModel, index: Int) {
                 .fillMaxWidth(0.5f)
                 .padding(0.dp, 16.dp, 8.dp, 0.dp)
         ) {
-            MovieCard(vm.favoriteMoviesList?.get(index), vm, index)
+            MovieCard(vm.favoriteMoviesList?.get(index), vm, index, navController)
         }
 
         Box(
@@ -104,7 +102,7 @@ fun DoubleMovieRow(vm: FavouriteScreenViewModel, index: Int) {
                 .padding(8.dp, 16.dp, 0.dp, 0.dp)
         ) {
             if (index + 1 < vm.favoriteMoviesList?.size ?: 0) {
-                MovieCard(vm.favoriteMoviesList?.get(index +1), vm, index + 1)
+                MovieCard(vm.favoriteMoviesList?.get(index +1), vm, index + 1, navController)
             }
         }
     }
@@ -112,24 +110,30 @@ fun DoubleMovieRow(vm: FavouriteScreenViewModel, index: Int) {
 
 // Строка с одним фильмом
 @Composable
-fun SingleMovieRow(vm: FavouriteScreenViewModel, index: Int) {
+fun SingleMovieRow(vm: FavouriteScreenViewModel, index: Int, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 16.dp, 16.dp, 0.dp)
     ) {
-        MovieCard(vm.favoriteMoviesList?.get(index), vm, index)
+        MovieCard(vm.favoriteMoviesList?.get(index), vm, index, navController)
     }
 }
 
 // Элемент с фильмом
 @Composable
-fun MovieCard(movie: Movie?, vm: FavouriteScreenViewModel, index: Int) {
+fun MovieCard(movie: Movie?, vm: FavouriteScreenViewModel, index: Int, navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(
+                enabled = true,
+                onClick = {
+                    navController.navigate("${descriptionScreen}/${movie?.id ?: ""}")
+                }
+            )
     ) {
-        Box() {
+        Box{
             AsyncImage(
                 model = movie?.poster,
                 contentDescription = null,
@@ -142,28 +146,29 @@ fun MovieCard(movie: Movie?, vm: FavouriteScreenViewModel, index: Int) {
 
             var rateNum = vm.ratings.value[index]
 
-            Box(
-                modifier = Modifier
-                    .padding(2.dp)
-                    .align(Alignment.TopEnd)
-            ) {
-                Row(
+            if (rateNum != -1f)
+            {
+                Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(darkGreen)
-                        .background(
-                            when {
-                                rateNum >= 9 -> darkGreen
-                                rateNum >= 8 -> lightGreen
-                                rateNum >= 6 -> yellow
-                                rateNum >= 4 -> orange
-                                rateNum >= 3 -> fire
-                                else -> darkRed
-                            }
-                        )
-                        .padding(8.dp, 2.dp)
+                        .padding(2.dp)
+                        .align(Alignment.TopEnd)
                 ) {
-                    if (rateNum != -1f) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(darkGreen)
+                            .background(
+                                when {
+                                    rateNum >= 9 -> darkGreen
+                                    rateNum >= 8 -> lightGreen
+                                    rateNum >= 6 -> yellow
+                                    rateNum >= 4 -> orange
+                                    rateNum >= 3 -> fire
+                                    else -> darkRed
+                                }
+                            )
+                            .padding(8.dp, 2.dp)
+                    ) {
                         Image(
                             painter = painterResource(id = R.drawable.comment_star),
                             contentDescription = null,
@@ -211,7 +216,7 @@ fun FavouritesHeader() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp, 16.dp, 16.dp, 0.dp)
+            .padding(16.dp, 16.dp, 16.dp, 16.dp)
     ) {
         Text(
             modifier = Modifier

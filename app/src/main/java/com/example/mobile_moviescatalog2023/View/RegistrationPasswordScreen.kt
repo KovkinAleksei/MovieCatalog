@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -33,15 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.Repository.Registration.RegistrationBody
-import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
-import com.example.mobile_moviescatalog2023.Repository.TokenResponse
-import com.example.mobile_moviescatalog2023.ViewModel.RegistrationData
 import com.example.mobile_moviescatalog2023.ViewModel.RegistrationPasswordViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 // Экран выбора и подтверждения пароля
 @Composable
@@ -53,8 +47,10 @@ fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () 
         FilmusHeaderWithBackButton(onBackButtonClick)
         Header()
         ChoosingPassword(viewModel)
+
         if (viewModel.errorMessage.value != "")
             PasswordErrorMessage(viewModel)
+
         RegistrationButton(viewModel, onRegistrationButtonClick)
         Spacer(modifier = Modifier.weight(1f))
         FooterPasswordRegistrationText(onSignInClick)
@@ -98,8 +94,13 @@ fun FillingPassword(
     // Поле ввода пароля
     val keyboardController = LocalSoftwareKeyboardController.current
     val showPassword = remember{mutableStateOf(false)}
+    val isFocused = remember{ mutableStateOf(true) }
 
     BasicTextField(
+        modifier = Modifier
+            .onFocusChanged {
+                isFocused.value = !isFocused.value
+            },
         value = password.value,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
@@ -119,7 +120,12 @@ fun FillingPassword(
                     .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
-                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
+                        color = if (viewModel.errorMessage.value.isEmpty() && !isFocused.value)
+                            Gray5E
+                        else if (viewModel.errorMessage.value.isEmpty() && isFocused.value)
+                            AccentColor
+                        else
+                            errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)

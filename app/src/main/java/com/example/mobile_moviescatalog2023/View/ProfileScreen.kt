@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -40,6 +42,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.View.BottomNavBar
+import com.example.mobile_moviescatalog2023.View.LoadingScreen
 import com.example.mobile_moviescatalog2023.ViewModel.ProfileViewModel
 import java.util.*
 
@@ -48,29 +51,36 @@ import java.util.*
 @Composable
 fun ProfileScreen(navController: NavController, onExitButtonClick: () -> Unit) {
     val vm: ProfileViewModel = viewModel()
+    val isLodaed = remember { mutableStateOf(false) }
 
-    Column {
-        Scaffold(
-            bottomBar = {
-                Divider(Modifier.width(1.dp), Gray40)
-                BottomNavBar(navController)
-            }
-        ) {
-            Column {
-                ProfilePicture(vm)
-                ProfileName(vm)
-                Exit(vm, onExitButtonClick)
+    if (!vm.isInitialized) {
+        vm.getProfile(isLodaed)
+    }
 
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    ProfileEmailField(vm)
-                    ProfileAvatarSourceField(vm)
-                    ProfileNameField(vm)
-                    ProfileGender(vm)
-                    ProfileDateOfBirth(vm)
+    if (isLodaed.value){
+        Column {
+            Scaffold(
+                bottomBar = {
+                    Divider(Modifier.width(1.dp), Gray40)
+                    BottomNavBar(navController)
+                }
+            ) {
+                Column {
+                    ProfilePicture(vm)
+                    ProfileName(vm)
+                    Exit(vm, onExitButtonClick)
 
-                    ProfileSaveButton(vm)
-                    ProfileCancelButton(vm)
-                    Box(modifier = Modifier.height(64.dp))
+                    Column(Modifier.verticalScroll(rememberScrollState())) {
+                        ProfileEmailField(vm)
+                        ProfileAvatarSourceField(vm)
+                        ProfileNameField(vm)
+                        ProfileGender(vm)
+                        ProfileDateOfBirth(vm)
+
+                        ProfileSaveButton(vm)
+                        ProfileCancelButton(vm)
+                        Box(modifier = Modifier.height(64.dp))
+                    }
                 }
             }
         }
@@ -155,8 +165,6 @@ fun Exit(vm: ProfileViewModel, onExitButtonClick: ()->Unit) {
 fun ProfileEmailField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.email),
-        borderColor = Gray5E,
-        bgColor = DarkGray700,
         vm.email,
         vm
     )
@@ -167,8 +175,6 @@ fun ProfileEmailField(vm: ProfileViewModel) {
 fun ProfileAvatarSourceField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.profilepic_source),
-        borderColor = Gray5E,
-        bgColor = DarkGray700,
         vm.profilePicture,
         vm
     )
@@ -179,8 +185,6 @@ fun ProfileAvatarSourceField(vm: ProfileViewModel) {
 fun ProfileNameField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.name),
-        borderColor = Gray5E,
-        bgColor = DarkGray700,
         vm.name,
         vm
     )
@@ -190,8 +194,6 @@ fun ProfileNameField(vm: ProfileViewModel) {
 @Composable
 fun ProfileTextField(
     label: String,
-    borderColor: Color,
-    bgColor: Color,
     fieldValue: MutableState<String>,
     vm: ProfileViewModel
 ) {
@@ -210,8 +212,13 @@ fun ProfileTextField(
     // Поле с данными
     var textFieldValue by remember{ fieldValue }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isFocused = remember{ mutableStateOf(true) }
 
     BasicTextField(
+        modifier = Modifier
+            .onFocusChanged {
+                isFocused.value = !isFocused.value
+            },
         value = textFieldValue,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
@@ -226,10 +233,13 @@ fun ProfileTextField(
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
-                    .background(bgColor)
+                    .background(DarkGray700)
                     .border(
                         width = 1.dp,
-                        color = borderColor,
+                        color = if(!isFocused.value)
+                            Gray5E
+                        else
+                            AccentColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
@@ -509,15 +519,23 @@ fun ProfileSaveButton(vm: ProfileViewModel) {
 // Кнопка Отмена
 @Composable
 fun ProfileCancelButton(vm: ProfileViewModel) {
+    val isEnabled by remember {
+        vm.isSaveAvailable
+    }
+
     Button(
         onClick = {
-                  vm.cancelButtonClick()
+            vm.cancelButtonClick()
         },
+        enabled = isEnabled,
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 16.dp, 16.dp, 0.dp)
             .height(50.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = DarkGray750),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = DarkGray750,
+            disabledBackgroundColor = DarkGray750
+        ),
         shape = RoundedCornerShape(10.dp),
         elevation = ButtonDefaults.elevation(
             defaultElevation = 0.dp,
@@ -527,7 +545,7 @@ fun ProfileCancelButton(vm: ProfileViewModel) {
         Text (
             text = stringResource(id = R.string.cancel),
             style = TextStyle(
-                color = AccentColor,
+                color = if(isEnabled) AccentColor else AccentColorTransparent,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp
             )

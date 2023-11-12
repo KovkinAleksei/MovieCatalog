@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -107,8 +108,13 @@ fun LoginUser(viewModel: LoginViewModel) {
     // Поле ввода логина
     var login by remember{ mutableStateOf(TextFieldValue(""))}
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isFocused = remember{ mutableStateOf(true) }
 
     BasicTextField(
+        modifier = Modifier
+            .onFocusChanged {
+                isFocused.value = !isFocused.value
+            },
         value = login,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
@@ -129,7 +135,12 @@ fun LoginUser(viewModel: LoginViewModel) {
                     .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
-                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
+                        color = if (viewModel.errorMessage.value == "" && !isFocused.value)
+                            Gray5E
+                        else if(viewModel.errorMessage.value == "" && isFocused.value)
+                            AccentColor
+                        else
+                            errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
@@ -168,8 +179,13 @@ fun Password(viewModel: LoginViewModel) {
     var password by remember{ mutableStateOf(TextFieldValue(""))}
     val keyboardController = LocalSoftwareKeyboardController.current
     val showPassword = remember{mutableStateOf(false)}
+    val isFocused = remember{ mutableStateOf(true) }
 
     BasicTextField(
+        modifier = Modifier
+            .onFocusChanged {
+                isFocused.value = !isFocused.value
+            },
         value = password,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
@@ -190,7 +206,12 @@ fun Password(viewModel: LoginViewModel) {
                     .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
-                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
+                        color = if (viewModel.errorMessage.value == "" && !isFocused.value)
+                            Gray5E
+                        else if(viewModel.errorMessage.value == "" && isFocused.value)
+                            AccentColor
+                        else
+                            errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)

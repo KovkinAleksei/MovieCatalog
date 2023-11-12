@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
+import com.example.mobile_moviescatalog2023.ViewModel.ProfileViewModel
 import com.example.mobile_moviescatalog2023.ViewModel.RegistrationViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import java.util.*
@@ -89,7 +91,7 @@ fun Calendar(viewModel: RegistrationViewModel) {
                     viewModel.isClicked.value = false
                     selectedDate = datePickerState.selectedDateMillis!!
                     viewModel.dateOfBIrthDisplay.value = displayFormatter.format(Date(selectedDate)).replace('-', '.')
-                    viewModel.birthDate.value = birthDateFormatter.format(Date(selectedDate)).replace('-', '.') + "T13:14:47.274Z"
+                    viewModel.birthDate.value = birthDateFormatter.format(Date(selectedDate)) + "T13:14:47.274Z"
                 }) {
                     Text(text = "Confirm")
                 }
@@ -186,62 +188,6 @@ fun Header() {
     )
 }
 
-// Ввод имени пользователя
-@Composable
-fun Name(viewModel: RegistrationViewModel) {
-    // Надпись Имя
-    Text(
-        modifier = Modifier
-            .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = stringResource(id = R.string.name),
-        style = TextStyle(
-            fontWeight = FontWeight.Medium,
-            fontSize = 17.sp,
-            color = Color.White
-        )
-    )
-
-    // Поле ввода имени
-    var message by remember{ mutableStateOf(TextFieldValue(viewModel.name.value))}
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    BasicTextField(
-        value = message,
-        singleLine = true,
-        cursorBrush = SolidColor(Color.White),
-        onValueChange = {
-            message = it
-            viewModel.name.value = it.text
-            viewModel.isFilledName.value = it.text.length > 0
-                        },
-        decorationBox = { innerTextField ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .height(55.dp)
-                    .padding(16.dp, 8.dp, 16.dp, 0.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Gray5E,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .padding(12.dp)
-            ){
-                innerTextField()
-            }
-        },
-        keyboardActions = KeyboardActions(
-            onDone = {
-                keyboardController?.hide()
-            }
-        ),
-        textStyle = TextStyle(
-            color = Color.White,
-            fontSize = 17.sp
-        )
-    )
-}
-
 // Выбор пола пользователя
 @Composable
 fun Gender(viewModel: RegistrationViewModel) {
@@ -278,7 +224,7 @@ fun Gender(viewModel: RegistrationViewModel) {
             onClick = {
                 if (!viewModel.maleSelected.value)
                     viewModel.maleSelected.value = !viewModel.maleSelected.value
-                      },
+            },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = if (viewModel.maleSelected.value) Color.White else Gray40
@@ -307,7 +253,7 @@ fun Gender(viewModel: RegistrationViewModel) {
             onClick = {
                 if (viewModel.maleSelected.value)
                     viewModel.maleSelected.value = !viewModel.maleSelected.value
-                      },
+            },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = if (viewModel.maleSelected.value) Gray40 else Color.White
@@ -329,70 +275,48 @@ fun Gender(viewModel: RegistrationViewModel) {
     }
 }
 
-// Ввод логина пользователя
+// Поле с именем пользователя
 @Composable
-fun Login(viewModel: RegistrationViewModel) {
-    // Надпись Логин
-    Text(
-        modifier = Modifier
-            .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = stringResource(id = R.string.login),
-        style = TextStyle(
-            fontWeight = FontWeight.Medium,
-            fontSize = 17.sp,
-            color = Color.White
-        )
-    )
-
-    // Поле ввода логина
-    var login by remember{ mutableStateOf(TextFieldValue(viewModel.userName.value))}
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    BasicTextField(
-        value = login,
-        singleLine = true,
-        cursorBrush = SolidColor(Color.White),
-        onValueChange = {
-            login = it
-            viewModel.isFilledLogin.value = login.text.length > 0
-            viewModel.userName.value = it.text
-                        },
-        decorationBox = { innerTextField ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .height(55.dp)
-                    .padding(16.dp, 8.dp, 16.dp, 0.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Gray5E,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .padding(12.dp)
-            ){
-                innerTextField()
-            }
-        },
-        keyboardActions = KeyboardActions(
-            onDone = {
-                keyboardController?.hide()
-            }
-        ),
-        textStyle = TextStyle(
-            color = Color.White,
-            fontSize = 17.sp
-        )
+fun Name(vm: RegistrationViewModel) {
+    RegistrationTextField(
+        label = stringResource(id = R.string.name),
+        bgColor = DarkGray700,
+        vm.name
     )
 }
 
-// Ввод электронной почты пользователя
+// Поле с логином пользователя
 @Composable
-fun Email(viewModel: RegistrationViewModel) {
-    // Надпись Электронная почта
+fun Login(vm: RegistrationViewModel) {
+    RegistrationTextField(
+        label = stringResource(id = R.string.login),
+        bgColor = DarkGray700,
+        vm.userName
+    )
+}
+
+// Поле с электронной почтой
+@Composable
+fun Email(vm: RegistrationViewModel) {
+    RegistrationTextField(
+        label = stringResource(id = R.string.email),
+        bgColor = DarkGray700,
+        vm.email
+    )
+}
+
+// Поле с данными профиля пользователя
+@Composable
+fun RegistrationTextField(
+    label: String,
+    bgColor: Color,
+    fieldValue: MutableState<String>
+) {
+    // Название поля
     Text(
         modifier = Modifier
             .padding(16.dp, 15.dp, 0.dp, 0.dp),
-        text = stringResource(id = R.string.email),
+        text = label,
         style = TextStyle(
             fontWeight = FontWeight.Medium,
             fontSize = 17.sp,
@@ -400,20 +324,22 @@ fun Email(viewModel: RegistrationViewModel) {
         )
     )
 
-    // Поле ввода электронной почты
-    var email by remember{ viewModel.email }
+    // Поле с данными
+    var textFieldValue by remember{ fieldValue }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isFocused = remember{ mutableStateOf(true) }
 
     BasicTextField(
-        value = email,
+        modifier = Modifier
+            .onFocusChanged {
+                isFocused.value = !isFocused.value
+            },
+        value = textFieldValue,
         singleLine = true,
         cursorBrush = SolidColor(Color.White),
         onValueChange = {
-            email = it
-            viewModel.email.value = it
-            viewModel.isFilledEmail.value = it.length > 0
-            viewModel.errorMessage.value = ""
-                        },
+            textFieldValue = it
+        },
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -421,10 +347,13 @@ fun Email(viewModel: RegistrationViewModel) {
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
-                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
+                    .background(bgColor)
                     .border(
                         width = 1.dp,
-                        color = if (viewModel.errorMessage.value == "") Gray5E else errorColor,
+                        color = if (isFocused.value)
+                            AccentColor
+                        else
+                            Gray5E,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
@@ -519,7 +448,8 @@ fun EmailErrorMessage(viewModel: RegistrationViewModel) {
 // Кнопка Продолжить
 @Composable
 fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -> Unit) {
-    val isEnabled = viewModel.isFilledLogin.value && viewModel.isFilledName.value && viewModel.isFilledEmail.value && (viewModel.birthDate.value.length > 0)
+    val isEnabled = !viewModel.userName.value.isEmpty() && !viewModel.name.value.isEmpty() && !viewModel.email.value.isEmpty() &&
+            (viewModel.birthDate.value.length > 0)
     Button(
         enabled = isEnabled,
         onClick = {
@@ -527,7 +457,7 @@ fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -
 
             if (viewModel.errorMessage.value == "")
                 onContinueButtonClick()
-                  },
+        },
         modifier = Modifier
             .fillMaxWidth(1f)
             .padding(16.dp, 24.dp, 16.dp, 0.dp)

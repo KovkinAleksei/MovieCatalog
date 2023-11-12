@@ -14,7 +14,6 @@ import androidx.navigation.navArgument
 import com.example.mobile_moviescatalog2023.View.*
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,8 +27,13 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = regOrLogScreen
+                        startDestination = "splash_screen"
                     ) {
+                        // Загрузочный экран
+                        composable("splash_screen") {
+                            SplashScreen(navController = navController)
+                        }
+
                         // Экран выбора регистрации или авторизации
                         composable(regOrLogScreen){
                             RegistrationOrLoginScreen (

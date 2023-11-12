@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.mobile_moviescatalog2023.Domain.Movie
+import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
 import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.ViewModel.MainScreenViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
@@ -49,8 +49,9 @@ fun MainScreen(navController: NavController) {
     val isLoaded = rememberSaveable {mutableStateOf(false)}
     val isLoading = rememberSaveable {mutableStateOf(true)}
 
-    if (viewModel.isInitialized == false)
+    if (viewModel.isInitialized == false){
         viewModel.getMovies(moviesResponse, isLoaded, isLoading)
+    }
 
     if (isLoaded.value){
         Scaffold (
@@ -89,6 +90,9 @@ fun MainScreen(navController: NavController) {
                 }
             }
         }
+    }
+    else {
+        LoadingScreen()
     }
 
     LaunchedEffect(listState) {

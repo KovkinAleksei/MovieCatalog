@@ -16,6 +16,7 @@ class FeedbackViewModel: ViewModel() {
     private var isNewFeedback = false
     private var movieId = ""
     private var myReview: ReviewDetails? = null
+    val isFilled = mutableStateOf(false)
 
     // Заполнение данных отзыва
     fun getValues(review: ReviewDetails?, id: String) {
@@ -83,5 +84,11 @@ class FeedbackViewModel: ViewModel() {
         rating.value = 0
         isAnonymous.value = false
         message.value = ""
+        isFilled.value = false
+    }
+
+    // Проверка на заполнение
+    fun checkFilling() {
+        isFilled.value = (rating.value != 0 && message.value != "")
     }
 }

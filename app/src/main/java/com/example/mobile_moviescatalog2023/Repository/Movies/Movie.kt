@@ -1,4 +1,4 @@
-package com.example.mobile_moviescatalog2023.Domain
+package com.example.mobile_moviescatalog2023.Repository.Movies
 
 import kotlinx.serialization.Serializable
 
