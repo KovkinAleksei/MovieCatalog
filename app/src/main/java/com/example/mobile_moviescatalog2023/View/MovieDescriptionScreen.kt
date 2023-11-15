@@ -398,7 +398,7 @@ fun Description(vm: MovieDescriptionViewModel) {
                     .clickable(
                         enabled = true,
                         onClick = {
-                            more.value = false
+                            more.value = true
                         }
                     ),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
