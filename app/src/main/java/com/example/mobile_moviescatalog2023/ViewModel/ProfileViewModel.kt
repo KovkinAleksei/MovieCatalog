@@ -22,6 +22,7 @@ class ProfileViewModel : ViewModel() {
     val isSaveAvailable = mutableStateOf(false)
     var isInitialized = false
     var connectionFailed = false
+    var errorMessage = mutableStateOf("")
 
     private val profileUseCase = ProfileUseCase()
 
@@ -45,6 +46,10 @@ class ProfileViewModel : ViewModel() {
     // Сохранение изменений
     fun saveButtonClick() {
         val currentVm = this
+        errorMessage.value = profileUseCase.validateEmail(email.value)
+
+        if (!errorMessage.value.isEmpty())
+            return
 
         CoroutineScope(Dispatchers.Default).launch {
             try {
@@ -84,6 +89,7 @@ class ProfileViewModel : ViewModel() {
 
     // Проверка изменений профиля
     fun checkChanges() {
+        errorMessage.value = ""
         isSaveAvailable.value = profileUseCase.checkChanges(this)
     }
 

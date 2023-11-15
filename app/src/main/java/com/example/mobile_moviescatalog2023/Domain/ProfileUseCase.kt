@@ -1,11 +1,13 @@
 package com.example.mobile_moviescatalog2023.Domain
 
 import android.icu.text.SimpleDateFormat
+import android.util.Patterns
 import androidx.compose.runtime.MutableState
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.ProfileRequest
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.UserProfile
 import com.example.mobile_moviescatalog2023.ViewModel.AuthorizationToken
 import com.example.mobile_moviescatalog2023.ViewModel.ProfileViewModel
+import com.example.mobile_moviescatalog2023.ui.theme.emailValidationError
 import java.util.*
 
 class ProfileUseCase {
@@ -16,6 +18,7 @@ class ProfileUseCase {
     var isMale = true
     var dateOfBirthDisplay = ""
     var birthDate = ""
+    var errorMessage = ""
 
     private var userId = ""
     private val profileRequest = ProfileRequest()
@@ -69,6 +72,13 @@ class ProfileUseCase {
     // Выход из профиля
     suspend fun exit() {
         AuthorizationToken.token = profileRequest.exit().token
+    }
+
+    fun validateEmail(email: String): String {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+            return emailValidationError
+        else
+            return ""
     }
 
     // Проверка изменений профиля

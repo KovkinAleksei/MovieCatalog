@@ -74,6 +74,9 @@ fun ProfileScreen(navController: NavController, onExitButtonClick: () -> Unit) {
                         ProfileGender(vm)
                         ProfileDateOfBirth(vm)
 
+                        if (!vm.errorMessage.value.isEmpty())
+                            EmailError(vm)
+
                         ProfileSaveButton(vm)
                         ProfileCancelButton(vm)
                         Box(modifier = Modifier.height(64.dp))
@@ -173,7 +176,9 @@ fun ProfileEmailField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.email),
         vm.email,
-        vm
+        vm,
+        if (vm.errorMessage.value.isEmpty()) DarkGray700 else errorTransparent,
+        if (vm.errorMessage.value.isEmpty()) Gray5E else errorColor
     )
 }
 
@@ -183,7 +188,9 @@ fun ProfileAvatarSourceField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.profilepic_source),
         vm.profilePicture,
-        vm
+        vm,
+        DarkGray700,
+        Gray5E
     )
 }
 
@@ -193,7 +200,9 @@ fun ProfileNameField(vm: ProfileViewModel) {
     ProfileTextField(
         label = stringResource(id = R.string.name),
         vm.name,
-        vm
+        vm,
+        DarkGray700,
+        Gray5E
     )
 }
 
@@ -202,7 +211,9 @@ fun ProfileNameField(vm: ProfileViewModel) {
 fun ProfileTextField(
     label: String,
     fieldValue: MutableState<String>,
-    vm: ProfileViewModel
+    vm: ProfileViewModel,
+    bgCol: Color,
+    borderCol: Color
 ) {
     // Название поля
     Text(
@@ -240,11 +251,11 @@ fun ProfileTextField(
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
-                    .background(DarkGray700)
+                    .background(bgCol)
                     .border(
                         width = 1.dp,
                         color = if (!isFocused.value)
-                            Gray5E
+                            borderCol
                         else
                             AccentColor,
                         shape = RoundedCornerShape(10.dp)
@@ -486,6 +497,20 @@ fun ProfileDateOfBirth(vm: ProfileViewModel) {
 
     ProfileCalendar(vm)
     vm.isClicked.value = false
+}
+
+// Сообщение об ошибке
+@Composable
+fun EmailError(vm: ProfileViewModel) {
+    Text(
+        text = vm.errorMessage.value,
+        style = TextStyle(
+            fontSize = 16.sp,
+            color = errorColor
+        ),
+        modifier = Modifier
+            .padding(16.dp, 4.dp, 0.dp, 0.dp)
+    )
 }
 
 // Кнопка Сохранить
