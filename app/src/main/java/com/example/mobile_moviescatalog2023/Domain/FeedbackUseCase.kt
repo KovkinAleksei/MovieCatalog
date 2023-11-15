@@ -40,7 +40,6 @@ class FeedbackUseCase {
     // Изменение анонимности отзыва
     fun changeAnonymous() {
         isAnonymous = !isAnonymous
-        myReview?.isAnonymous = isAnonymous
     }
 
     // Сохранение отзыва

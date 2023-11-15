@@ -5,7 +5,7 @@ class ReviewDetails(
     val id: String,
     val rating: Float,
     val reviewText: String?,
-    var isAnonymous: Boolean,
+    val isAnonymous: Boolean,
     val createDateTime: String,
     val author: ReviewAuthor?
 )

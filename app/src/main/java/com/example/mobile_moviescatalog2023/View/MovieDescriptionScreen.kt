@@ -334,18 +334,18 @@ fun Description(vm: MovieDescriptionViewModel) {
 
             Row(
                 modifier = Modifier
-                    .padding(16.dp, 0.dp),
+                    .padding(16.dp, 0.dp)
+                    .clickable(
+                        enabled = true,
+                        onClick = {
+                            more.value = false
+                        }
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .clickable(
-                            enabled = true,
-                            onClick = {
-                                more.value = false
-                            }
-                        ),
+                        .align(Alignment.CenterVertically),
                     text = stringResource(id = R.string.more),
                     style = TextStyle(
                         color = AccentColor,
@@ -394,19 +394,19 @@ fun Description(vm: MovieDescriptionViewModel) {
 
             Row(
                 modifier = Modifier
-                    .padding(16.dp, 0.dp),
+                    .padding(16.dp, 0.dp)
+                    .clickable(
+                        enabled = true,
+                        onClick = {
+                            more.value = false
+                        }
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .clickable(
-                            enabled = true,
-                            onClick = {
-                                more.value = true
-                            }
-                        ),
-                    text = "Подробнее",
+                        .align(Alignment.CenterVertically),
+                    text = stringResource(id = R.string.more),
                     style = TextStyle(
                         color = AccentColor,
                         fontSize = 17.sp
@@ -429,7 +429,7 @@ fun Description(vm: MovieDescriptionViewModel) {
 @Composable
 fun MovieGenres() {
     Text(
-        text = "Жанры",
+        text = stringResource(id = R.string.genres),
         style = TextStyle(
             color = Color.White,
             fontWeight = FontWeight.Bold,
