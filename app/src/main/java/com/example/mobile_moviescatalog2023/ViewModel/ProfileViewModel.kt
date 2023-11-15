@@ -90,7 +90,8 @@ class ProfileViewModel : ViewModel() {
     // Проверка изменений профиля
     fun checkChanges() {
         errorMessage.value = ""
-        isSaveAvailable.value = profileUseCase.checkChanges(this)
+        isSaveAvailable.value = profileUseCase.checkChanges(this) &&
+                !email.value.isEmpty() && !profilePicture.value.isEmpty() && !name.value.isEmpty() && !birthDate.value.isEmpty()
     }
 
     // Заполнение данных профиля
