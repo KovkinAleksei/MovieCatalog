@@ -39,7 +39,6 @@ import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
 import com.example.mobile_moviescatalog2023.ViewModel.MainScreenViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
-import kotlinx.coroutines.delay
 
 // Главный экран
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -285,13 +284,6 @@ fun FilmsPager() {
     val medialList =
         listOf(R.drawable.media1, R.drawable.media2, R.drawable.media3, R.drawable.media4)
     val pagerState = rememberPagerState()
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(3000)
-            pagerState.animateScrollToPage(pagerState.currentPage + 1 % 4)
-        }
-    }
 
     Column(
         modifier = Modifier

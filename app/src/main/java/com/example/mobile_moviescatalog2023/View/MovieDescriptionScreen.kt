@@ -198,8 +198,7 @@ fun MoviePoster(vm: MovieDescriptionViewModel, listState: LazyListState) {
     Box(
         modifier = Modifier
             .graphicsLayer {
-                translationY = listState.firstVisibleItemScrollOffset / 3f
-                alpha = (-1f / (500 * density) * listState.firstVisibleItemScrollOffset + 1)
+                alpha = 1 - (1f / (500 * density) * listState.firstVisibleItemScrollOffset)
             }
     ) {
         AsyncImage(
