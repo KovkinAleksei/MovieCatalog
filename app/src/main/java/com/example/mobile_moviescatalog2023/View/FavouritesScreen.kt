@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalLayoutApi::class)
-
 package com.example.mobile_moviescatalog2023.View
 
 import android.annotation.SuppressLint
@@ -13,18 +11,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mobile_moviescatalog2023.R
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
 import com.example.mobile_moviescatalog2023.ViewModel.FavouriteScreenViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
@@ -35,27 +34,24 @@ import com.example.mobile_moviescatalog2023.ui.theme.*
 fun FavouritesScreen(navController: NavController) {
     val vm: FavouriteScreenViewModel = viewModel()
 
-    if (vm.isLoaded.value){
+    if (vm.isLoaded.value) {
         Scaffold(
             bottomBar = {
                 BottomNavBar(navController)
             }) {
-            Column{
+            Column {
                 FavouritesHeader()
 
-                if (vm.favoriteMoviesList?.isEmpty() == true) {
+                if (vm.favoriteMoviesList?.isEmpty() == true || vm.connectionFailed) {
                     EmptyFavouriteScreen()
-                }
-                else {
+                } else {
                     FilledScreen(vm, navController)
                 }
             }
         }
-    }
-    else {
+    } else {
         LoadingScreen()
     }
-
 }
 
 // Экран с наполненным списком любимых фильмов
@@ -68,12 +64,11 @@ fun FilledScreen(vm: FavouriteScreenViewModel, navController: NavController) {
             .verticalScroll(rememberScrollState())
             .padding(0.dp, 0.dp, 0.dp, 70.dp)
     ) {
-        while (index < vm.favoriteMoviesList?.size ?: 0) {
+        while (index < (vm.favoriteMoviesList?.size ?: 0)) {
             if (index % 3 != 2) {
                 DoubleMovieRow(vm, index, navController)
                 index += 2
-            }
-            else {
+            } else {
                 SingleMovieRow(vm, index, navController)
                 index++
             }
@@ -101,8 +96,8 @@ fun DoubleMovieRow(vm: FavouriteScreenViewModel, index: Int, navController: NavC
                 .fillMaxWidth()
                 .padding(8.dp, 16.dp, 0.dp, 0.dp)
         ) {
-            if (index + 1 < vm.favoriteMoviesList?.size ?: 0) {
-                MovieCard(vm.favoriteMoviesList?.get(index +1), vm, index + 1, navController)
+            if (index + 1 < (vm.favoriteMoviesList?.size ?: 0)) {
+                MovieCard(vm.favoriteMoviesList?.get(index + 1), vm, index + 1, navController)
             }
         }
     }
@@ -122,18 +117,26 @@ fun SingleMovieRow(vm: FavouriteScreenViewModel, index: Int, navController: NavC
 
 // Элемент с фильмом
 @Composable
-fun MovieCard(movie: Movie?, vm: FavouriteScreenViewModel, index: Int, navController: NavController) {
+fun MovieCard(
+    movie: Movie?,
+    vm: FavouriteScreenViewModel,
+    index: Int,
+    navController: NavController
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
                 enabled = true,
                 onClick = {
-                    navController.navigate("${descriptionScreen}/${movie?.id ?: ""}")
+                    navController.currentBackStackEntry?.savedStateHandle?.set(isBack, true)
+                    navController.navigate("${descriptionScreen}/${movie?.id ?: ""}") {
+                        popUpTo(mainScreen)
+                    }
                 }
             )
     ) {
-        Box{
+        Box {
             AsyncImage(
                 model = movie?.poster,
                 contentDescription = null,
@@ -144,10 +147,9 @@ fun MovieCard(movie: Movie?, vm: FavouriteScreenViewModel, index: Int, navContro
                 contentScale = ContentScale.Crop
             )
 
-            var rateNum = vm.ratings.value[index]
+            val rateNum = vm.ratings.value[index]
 
-            if (rateNum != -1f)
-            {
+            if (rateNum != -1f) {
                 Box(
                     modifier = Modifier
                         .padding(2.dp)
@@ -170,7 +172,7 @@ fun MovieCard(movie: Movie?, vm: FavouriteScreenViewModel, index: Int, navContro
                             .padding(8.dp, 2.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.comment_star),
+                            imageVector = ImageVector.vectorResource(id = R.drawable.comment_star),
                             contentDescription = null,
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
@@ -206,9 +208,11 @@ fun MovieCard(movie: Movie?, vm: FavouriteScreenViewModel, index: Int, navContro
 
 @Composable
 fun EmptyFavouriteScreen() {
-    Spacer(modifier = Modifier.height(100.dp))
-    NoFavouriteFilms()
-    ChooseFaviuriteFilm()
+    Column {
+        Spacer(modifier = Modifier.height(100.dp))
+        NoFavouriteFilms()
+        ChooseFaviuriteFilm()
+    }
 }
 
 @Composable

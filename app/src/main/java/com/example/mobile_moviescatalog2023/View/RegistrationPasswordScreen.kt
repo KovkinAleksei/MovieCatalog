@@ -39,8 +39,11 @@ import com.example.mobile_moviescatalog2023.ui.theme.*
 
 // Экран выбора и подтверждения пароля
 @Composable
-fun RegistrationPasswordScreen(onBackButtonClick: () -> Unit, onSignInClick: () -> Unit, onRegistrationButtonClick: () -> Unit)
-{
+fun RegistrationPasswordScreen(
+    onBackButtonClick: () -> Unit,
+    onSignInClick: () -> Unit,
+    onRegistrationButtonClick: () -> Unit
+) {
     val viewModel: RegistrationPasswordViewModel = viewModel()
 
     Column {
@@ -93,8 +96,8 @@ fun FillingPassword(
 
     // Поле ввода пароля
     val keyboardController = LocalSoftwareKeyboardController.current
-    val showPassword = remember{mutableStateOf(false)}
-    val isFocused = remember{ mutableStateOf(true) }
+    val showPassword = remember { mutableStateOf(false) }
+    val isFocused = remember { mutableStateOf(true) }
 
     BasicTextField(
         modifier = Modifier
@@ -117,7 +120,7 @@ fun FillingPassword(
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
-                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
+                    .background(if (viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
                         color = if (viewModel.errorMessage.value.isEmpty() && !isFocused.value)
@@ -129,14 +132,14 @@ fun FillingPassword(
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
-            ){
+            ) {
                 innerTextField()
                 Spacer(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
                 )
-                Image (
+                Image(
                     imageVector = ImageVector.vectorResource(id = R.drawable.opened_eye),
                     contentDescription = null,
                     modifier = Modifier
@@ -163,13 +166,13 @@ fun FillingPassword(
 // Ввод и подтверждение пароля
 @Composable
 fun ChoosingPassword(viewModel: RegistrationPasswordViewModel) {
-    val isFilledRegistratonPassword = remember{ mutableStateOf(false) }
+    val isFilledRegistratonPassword = remember { mutableStateOf(false) }
 
-    val firstPassword = remember{ mutableStateOf(TextFieldValue("")) }
-    val secondPassword = remember{ mutableStateOf(TextFieldValue("")) }
+    val firstPassword = remember { mutableStateOf(TextFieldValue("")) }
+    val secondPassword = remember { mutableStateOf(TextFieldValue("")) }
 
     FillingPassword(
-        viewModel =  viewModel,
+        viewModel = viewModel,
         password = firstPassword,
         label = stringResource(id = R.string.password),
         isFilledPassword = isFilledRegistratonPassword
@@ -182,7 +185,8 @@ fun ChoosingPassword(viewModel: RegistrationPasswordViewModel) {
         isFilledPassword = isFilledRegistratonPassword
     )
 
-    viewModel.isEnabledRegButton.value = firstPassword.value.text == secondPassword.value.text && isFilledRegistratonPassword.value
+    viewModel.isEnabledRegButton.value =
+        firstPassword.value.text == secondPassword.value.text && isFilledRegistratonPassword.value
 
     if (viewModel.isEnabledRegButton.value)
         viewModel.password.value = firstPassword.value.text
@@ -190,11 +194,14 @@ fun ChoosingPassword(viewModel: RegistrationPasswordViewModel) {
 
 // Кнопка Зарегистрироваться
 @Composable
-fun RegistrationButton(viewModel: RegistrationPasswordViewModel, onRegistrationButtonClick: () -> Unit) {
+fun RegistrationButton(
+    viewModel: RegistrationPasswordViewModel,
+    onRegistrationButtonClick: () -> Unit
+) {
     Button(
         enabled = viewModel.isEnabledRegButton.value,
         onClick = {
-            viewModel.onRegistrateButtonClick()
+            viewModel.onRegistrationButtonClick()
         },
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -210,7 +217,7 @@ fun RegistrationButton(viewModel: RegistrationPasswordViewModel, onRegistrationB
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.registration_last_button),
             style = TextStyle(
                 color = if (viewModel.isEnabledRegButton.value) Color.White else WhiteTransparent,
@@ -246,9 +253,9 @@ fun FooterPasswordRegistrationText(onSignInClick: () -> Unit) {
                 fontSize = 17.sp,
                 color = AccentColor,
                 modifier = Modifier
-                    .clickable (
+                    .clickable(
                         enabled = true,
-                        onClick = {onSignInClick()}
+                        onClick = { onSignInClick() }
                     )
             )
         }

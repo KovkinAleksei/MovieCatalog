@@ -1,7 +1,10 @@
 package com.example.mobile_moviescatalog2023.View
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -18,9 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
 import com.example.mobile_moviescatalog2023.ui.theme.DarkGray750
-import com.example.mobile_moviescatalog2023.R
 
 // Экран выбора регистрации или авторизации пользователя
 @Composable
@@ -38,7 +41,7 @@ fun RegistrationOrLoginScreen(
 // Картинка на экране выбора регистрации/входа
 @Composable
 fun MovieIcon() {
-    Image (
+    Image(
         imageVector = ImageVector.vectorResource(id = R.drawable.cinema_icon),
         contentDescription = null,
         modifier = Modifier
@@ -52,7 +55,7 @@ fun MovieIcon() {
 @Composable
 fun CinemaDescription() {
     // Надпись "Погрузись в мир кино"
-    Text (
+    Text(
         modifier = Modifier
             .padding(0.dp, 35.dp, 0.dp, 0.dp)
             .fillMaxWidth(1f),
@@ -66,7 +69,7 @@ fun CinemaDescription() {
     )
 
     // Описание онлайн кинотеатра
-    Text (
+    Text(
         modifier = Modifier
             .padding(16.dp, 8.dp, 16.dp, 0.dp)
             .fillMaxWidth(1f),
@@ -96,7 +99,7 @@ fun Buttons(onRegButtonClick: () -> Unit, onLoginButtonClick: () -> Unit) {
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.registration_button),
             style = TextStyle(
                 color = Color.White,
@@ -120,7 +123,7 @@ fun Buttons(onRegButtonClick: () -> Unit, onLoginButtonClick: () -> Unit) {
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.login_button),
             style = TextStyle(
                 color = AccentColor,

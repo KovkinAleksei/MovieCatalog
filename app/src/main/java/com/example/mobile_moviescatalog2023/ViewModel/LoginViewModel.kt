@@ -2,15 +2,12 @@ package com.example.mobile_moviescatalog2023.ViewModel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.mobile_moviescatalog2023.Repository.Login.LoginBody
-import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
-import com.example.mobile_moviescatalog2023.Repository.TokenResponse
+import com.example.mobile_moviescatalog2023.Domain.LoginUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class LoginViewModel: ViewModel() {
-    // Данные экрана
+class LoginViewModel : ViewModel() {
     val isFilledLogin = mutableStateOf(false)
     val isFilledPassword = mutableStateOf(false)
     val username = mutableStateOf("")
@@ -18,30 +15,15 @@ class LoginViewModel: ViewModel() {
     val errorMessage = mutableStateOf("")
     val isLoginAvailable = mutableStateOf(true)
 
+    private val loginUseCase = LoginUseCase()
+
     // Вход в аккаунт
     fun login() {
-        val loginRetrofit = RetrofitImplementation()
-        val api = loginRetrofit.loginApiImplementation()
-        var tokenResponse: TokenResponse? = null
-
         CoroutineScope(Dispatchers.Default).launch {
-            val body = LoginBody(username = username.value, password = password.value)
+            loginUseCase.login(username.value, password.value)
 
-            try {
-                val response = api.login(body = body)
-                tokenResponse = response
-
-                if (tokenResponse != null){
-                    AuthorizationToken.token = tokenResponse!!.token
-                    errorMessage.value = ""
-                    isLoginAvailable.value = false
-                }
-
-            }
-            catch (e: Exception){
-                errorMessage.value = "Неверный логин или пароль."
-                isLoginAvailable.value = true
-            }
+            errorMessage.value = loginUseCase.errorMessage
+            isLoginAvailable.value = loginUseCase.isLoginAvailable
         }
     }
 }

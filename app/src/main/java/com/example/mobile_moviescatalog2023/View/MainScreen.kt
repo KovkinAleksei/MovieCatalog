@@ -23,8 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,8 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
 import com.example.mobile_moviescatalog2023.R
+import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
 import com.example.mobile_moviescatalog2023.ViewModel.MainScreenViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import kotlinx.coroutines.delay
@@ -46,19 +48,34 @@ fun MainScreen(navController: NavController) {
     val viewModel: MainScreenViewModel = viewModel()
     val moviesResponse = rememberSaveable { mutableStateOf<List<Movie>?>(null) }
     val listState = rememberLazyListState()
-    val isLoaded = rememberSaveable {mutableStateOf(false)}
-    val isLoading = rememberSaveable {mutableStateOf(true)}
+    val isLoaded = remember { mutableStateOf(false) }
+    val isLoading = remember { mutableStateOf(false) }
 
-    if (viewModel.isInitialized == false){
-        viewModel.getMovies(moviesResponse, isLoaded, isLoading)
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .collect { visibleItems ->
+                val lastVisibleItem = visibleItems.lastOrNull()
+
+                if (lastVisibleItem != null && lastVisibleItem.index == listState.layoutInfo.totalItemsCount - 1 && !isLoading.value
+                    || listState.layoutInfo.totalItemsCount == 0
+                ) {
+
+                    if (listState.layoutInfo.totalItemsCount == 0) {
+                        moviesResponse.value = listOf()
+                        viewModel.reload()
+                    }
+
+                    viewModel.getMovies(moviesResponse, isLoaded, isLoading)
+                }
+            }
     }
 
-    if (isLoaded.value){
-        Scaffold (
+    if (isLoaded.value) {
+        Scaffold(
             bottomBar = {
                 BottomNavBar(navController)
             }
-        ){
+        ) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -90,20 +107,8 @@ fun MainScreen(navController: NavController) {
                 }
             }
         }
-    }
-    else {
+    } else {
         LoadingScreen()
-    }
-
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-            .collect { visibleItems ->
-                val lastVisibleItem = visibleItems.lastOrNull()
-
-                if (lastVisibleItem != null && lastVisibleItem.index == listState.layoutInfo.totalItemsCount - 1 && !isLoading.value) {
-                    viewModel.getMovies(moviesResponse, isLoaded, isLoading)
-                }
-            }
     }
 }
 
@@ -127,12 +132,12 @@ fun Rating(vm: MainScreenViewModel, movie: Movie) {
                     else -> darkRed
                 }
             )
-    ){
+    ) {
         Text(
             modifier = Modifier
                 .padding(4.dp, 0.dp),
             text = rate,
-            style = TextStyle (
+            style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
             ),
@@ -167,7 +172,7 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
 
                 Rating(vm, movie)
             }
-            Box{
+            Box {
                 Column(
                     modifier = Modifier
                         .padding(10.dp, 0.dp, 50.dp, 0.dp)
@@ -195,8 +200,8 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
                             .fillMaxWidth()
                             .padding(0.dp, 0.dp, 16.dp, 0.dp)
                     ) {
-                        movie.genres.forEach {
-                                it -> GenreLabel(genre = it.name)
+                        movie.genres.forEach { it ->
+                            GenreLabel(genre = it.name)
                         }
                     }
                 }
@@ -226,7 +231,7 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
                                 .padding(8.dp, 2.dp)
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.comment_star),
+                                imageVector = ImageVector.vectorResource(id = R.drawable.comment_star),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
@@ -254,14 +259,14 @@ fun MovieElement(vm: MainScreenViewModel, movie: Movie, navController: NavContro
 // Подпись жанра фильма
 @Composable
 fun GenreLabel(genre: String) {
-    Box (
+    Box(
         modifier = Modifier
             .padding(2.dp)
             .clip(shape = RoundedCornerShape(6.dp))
             .background(Gray40)
     ) {
         Text(
-            text= genre,
+            text = genre,
             style = TextStyle(
                 fontSize = 14.sp,
                 color = Color.White
@@ -277,7 +282,8 @@ fun GenreLabel(genre: String) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FilmsPager() {
-    val medialList = listOf(R.drawable.media1, R.drawable.media2, R.drawable.media3, R.drawable.media4)
+    val medialList =
+        listOf(R.drawable.media1, R.drawable.media2, R.drawable.media3, R.drawable.media4)
     val pagerState = rememberPagerState()
 
     LaunchedEffect(Unit) {
@@ -312,23 +318,25 @@ fun FilmsPager() {
                     )
                 }
             }
+
             Box(
                 modifier = Modifier
-                    .padding(10.dp)
                     .align(Alignment.BottomCenter)
+                    .padding(16.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .clip(shape = RoundedCornerShape(10.dp))
                         .background(transparent)
                         .padding(4.dp)
+                        .align(Alignment.BottomCenter)
                 ) {
                     repeat(4) { iteration ->
                         Image(
-                            painter = if (pagerState.currentPage == iteration)
-                                painterResource(id = R.drawable.filled_dot)
+                            imageVector = if (pagerState.currentPage == iteration)
+                                ImageVector.vectorResource(id = R.drawable.filled_dot)
                             else
-                                painterResource(id = R.drawable.hollow_dot),
+                                ImageVector.vectorResource(id = R.drawable.hollow_dot),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(4.dp, 2.dp)

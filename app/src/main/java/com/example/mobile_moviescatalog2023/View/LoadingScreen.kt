@@ -10,11 +10,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobile_moviescatalog2023.R
 import com.example.mobile_moviescatalog2023.ui.theme.AccentColor
 import kotlinx.coroutines.delay
 
@@ -36,13 +38,13 @@ fun LoadingScreen() {
         val count = remember { mutableStateOf(0) }
 
         Text(
-            text = "Идёт загрузка" +
-            when(count.value % 4){
-                0 -> ""
-                1->"."
-                2->".."
-                else->"..."
-            },
+            text = stringResource(id = R.string.loaing_in_process) +
+                    when (count.value % 4) {
+                        0 -> ""
+                        1 -> stringResource(id = R.string.single_dot)
+                        2 -> stringResource(id = R.string.double_dot)
+                        else -> stringResource(id = R.string.triple_dot)
+                    },
             style = TextStyle(
                 color = Color.White,
                 fontSize = 24.sp,

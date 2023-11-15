@@ -1,20 +1,16 @@
 package com.example.mobile_moviescatalog2023.ViewModel
 
-import android.icu.text.SimpleDateFormat
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.mobile_moviescatalog2023.Repository.Login.LoginBody
-import com.example.mobile_moviescatalog2023.Repository.Login.LogoutResponse
-import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
-import com.example.mobile_moviescatalog2023.Repository.TokenResponse
-import com.example.mobile_moviescatalog2023.Repository.UserProfile.UserProfile
+import com.example.mobile_moviescatalog2023.Domain.ProfileUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
+import kotlinx.coroutines.withContext
+import java.net.UnknownHostException
 
-class ProfileViewModel: ViewModel() {
+class ProfileViewModel : ViewModel() {
     val nameDisplay = mutableStateOf("")
     val name = mutableStateOf("")
     val email = mutableStateOf("")
@@ -25,105 +21,80 @@ class ProfileViewModel: ViewModel() {
     val isClicked = mutableStateOf(false)
     val isSaveAvailable = mutableStateOf(false)
     var isInitialized = false
+    var connectionFailed = false
 
-    private var profileResponse: UserProfile? = null
+    private val profileUseCase = ProfileUseCase()
 
-    // Выход из профиля
-    fun exit() {
-        val retrofit = RetrofitImplementation()
-        val api = retrofit.logoutImplementation()
+    // Получение профиля из Api
+    fun getProfile(isLoaded: MutableState<Boolean>) {
+        isInitialized = true
 
-        var logoutResponse: LogoutResponse? = null
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                profileUseCase.getProfile(isLoaded)
+            } catch (e: UnknownHostException) {
+                connectionFailed = true
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = api.logout()
-            logoutResponse = response
+                return@launch
+            }
 
-            if (response != null)
-                AuthorizationToken.token = logoutResponse!!.token
+            copyValues()
         }
     }
 
     // Сохранение изменений
     fun saveButtonClick() {
-        val newProfile = UserProfile(
-            id = profileResponse!!.id,
-            nickName = profileResponse!!.nickName,
-            email = email.value,
-            avatarLink = profilePicture.value,
-            name = name.value,
-            birthDate = birthDate.value,
-            gender = if (isMale.value) 0 else 1
-        )
-
-        val retrofit = RetrofitImplementation()
-        val api = retrofit.putProfileImplementation()
+        val currentVm = this
 
         CoroutineScope(Dispatchers.Default).launch {
-            val response = api.putProfile(body = newProfile, token = "Bearer ${AuthorizationToken.token}")
+            try {
+                profileUseCase.saveProfile(currentVm)
+            } catch (e: UnknownHostException) {
+                connectionFailed = true
+
+                return@launch
+            }
+
+            isSaveAvailable.value = profileUseCase.checkChanges(currentVm)
         }
+    }
 
-        nameDisplay.value = name.value
-        isSaveAvailable.value = false
+    // Выход из профиля
+    fun exit(onExit: () -> Unit) {
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                profileUseCase.exit()
+            } catch (e: UnknownHostException) {
+                connectionFailed = true
 
-        profileResponse = newProfile
+                return@launch
+            }
+
+            withContext(Dispatchers.Main) {
+                onExit()
+            }
+        }
     }
 
     // Отмена изменений профиля
     fun cancelButtonClick() {
-        getValues()
-        isSaveAvailable.value = false
+        copyValues()
+        isSaveAvailable.value = profileUseCase.checkChanges(this)
     }
 
     // Проверка изменений профиля
     fun checkChanges() {
-        if (profileResponse != null){
-            isSaveAvailable.value = ((profileResponse!!.gender == 0) != isMale.value ||
-                    (profileResponse!!.email != email.value) ||
-                    ((profileResponse?.avatarLink ?: "") != profilePicture.value) ||
-                    (profileResponse!!.birthDate != birthDate.value) ||
-                    (profileResponse!!.name != name.value))
-        }
+        isSaveAvailable.value = profileUseCase.checkChanges(this)
     }
 
-    // Перевод даты в формат для вывода
-    private fun reformatDate(apiDate: String): String {
-        val apiFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-        val displayFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-
-        val displayDate: Date = apiFormat.parse(apiDate)
-
-        return displayFormat.format(displayDate)
-    }
-
-    // Получение значений из ответа
-    private fun getValues() {
-        if (profileResponse == null)
-            return
-
-        nameDisplay.value = profileResponse!!.name
-        name.value = profileResponse!!.name
-        email.value = profileResponse!!.email
-        profilePicture.value = profileResponse!!.avatarLink ?: ""
-        isMale.value = profileResponse!!.gender == 0
-        dateOfBirthDisplay.value = reformatDate(profileResponse!!.birthDate)
-        birthDate.value = profileResponse!!.birthDate
-    }
-
-    // Получение данных профиля из Api
-    fun getProfile(isLoaded: MutableState<Boolean>) {
-        isInitialized = true
-
-        val profileRetrofit = RetrofitImplementation()
-        val api = profileRetrofit.getProfileImplementation()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = api.getProfile(token = "Bearer ${AuthorizationToken.token}")
-            profileResponse = response
-
-            getValues()
-
-            isLoaded.value = true
-        }
+    // Заполнение данных профиля
+    private fun copyValues() {
+        nameDisplay.value = profileUseCase.nickName
+        name.value = profileUseCase.name
+        email.value = profileUseCase.email
+        profilePicture.value = profileUseCase.profilePicture
+        isMale.value = profileUseCase.isMale
+        dateOfBirthDisplay.value = profileUseCase.dateOfBirthDisplay
+        birthDate.value = profileUseCase.birthDate
     }
 }

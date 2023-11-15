@@ -49,7 +49,7 @@ android {
 
 dependencies {
     implementation 'androidx.compose.foundation:foundation:1.4.3'
-
+    implementation "com.github.skydoves:cloudy:0.1.2"
     implementation "androidx.compose.material3:material3:1.1.2"
     implementation "androidx.compose.material3:material3-window-size-class:1.1.2"
 

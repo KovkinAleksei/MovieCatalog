@@ -32,6 +32,30 @@
     <string name="favourite">Любимое</string>
     <string name="no_films">У вас пока нет любимых фильмов</string>
     <string name="choose_favourite">Выберете понравившийся фильм в каталоге и добавьте его в любимые</string>
-
+    <string name="leave_review">Оставьте отзыв</string>
+    <string name="write_review">Напишите отзыв</string>
+    <string name="anonymous_review">Анонимный отзыв</string>
+    <string name="loaing_in_process">Идёт загрузка</string>
+    <string name="single_dot">.</string>
+    <string name="double_dot">..</string>
+    <string name="triple_dot">...</string>
+    <string name="about_movie">О фильме</string>
+    <string name="year">Год</string>
+    <string name="country">Страна</string>
+    <string name="slogan">Слоган</string>
+    <string name="director">Режиссёр</string>
+    <string name="budget">Бюджет</string>
+    <string name="fees">Сборы в мире</string>
+    <string name="age">Возраст</string>
+    <string name="time">Время</string>
+    <string name="reviews">Отзывы</string>
+    <string name="edit">Редактировать</string>
+    <string name="delete">Удалить</string>
+    <string name="anonymous_user">Анонимный пользователь</string>
+    <string name="my_review">мой отзыв</string>
+    <string name="cancel_calendar">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="more">Подробнее</string>
+    <string name="main">Главная</string>
 
 </resources>

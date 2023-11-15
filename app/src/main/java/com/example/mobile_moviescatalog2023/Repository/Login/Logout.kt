@@ -4,5 +4,5 @@ import retrofit2.http.POST
 
 interface LogoutApi {
     @POST("account/logout")
-    suspend fun logout() : LogoutResponse
+    suspend fun logout(): LogoutResponse
 }

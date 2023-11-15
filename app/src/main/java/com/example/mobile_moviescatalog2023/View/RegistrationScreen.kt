@@ -29,13 +29,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.ViewModel.ProfileViewModel
 import com.example.mobile_moviescatalog2023.ViewModel.RegistrationViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 import java.util.*
@@ -43,9 +41,9 @@ import java.util.*
 // Экран регистрации
 @Composable
 fun RegistrationScreen(
-    onBackButtonClick: ()->Unit,
+    onBackButtonClick: () -> Unit,
     onLoginClick: () -> Unit,
-    onContinueButtonClick: ()->Unit
+    onContinueButtonClick: () -> Unit
 ) {
     val viewModel: RegistrationViewModel = viewModel()
 
@@ -61,7 +59,7 @@ fun RegistrationScreen(
             EmailErrorMessage(viewModel)
         ContinueButton(viewModel, onContinueButtonClick)
         Spacer(modifier = Modifier.weight(1f))
-        FooterRegistrationText (onLoginClick)
+        FooterRegistrationText(onLoginClick)
     }
 }
 
@@ -78,7 +76,7 @@ fun Calendar(viewModel: RegistrationViewModel) {
     val displayFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.ROOT)
     val birthDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
 
-    if (viewModel.isClicked.value){
+    if (viewModel.isClicked.value) {
         DatePickerDialog(
             colors = DatePickerDefaults.colors(
                 containerColor = Color(0xFF303030)
@@ -90,20 +88,22 @@ fun Calendar(viewModel: RegistrationViewModel) {
                 TextButton(onClick = {
                     viewModel.isClicked.value = false
                     selectedDate = datePickerState.selectedDateMillis!!
-                    viewModel.dateOfBIrthDisplay.value = displayFormatter.format(Date(selectedDate)).replace('-', '.')
-                    viewModel.birthDate.value = birthDateFormatter.format(Date(selectedDate)) + "T13:14:47.274Z"
+                    viewModel.dateOfBIrthDisplay.value =
+                        displayFormatter.format(Date(selectedDate)).replace('-', '.')
+                    viewModel.birthDate.value =
+                        birthDateFormatter.format(Date(selectedDate)) + "T13:14:47.274Z"
                 }) {
-                    Text(text = "Confirm")
+                    Text(text = stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     viewModel.isClicked.value = false
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(id = R.string.cancel_calendar))
                 }
             }
-        ){
+        ) {
             DatePicker(
                 state = datePickerState,
                 Modifier.background(Color(0xFF303030)),
@@ -135,7 +135,7 @@ fun Calendar(viewModel: RegistrationViewModel) {
 // Кнопка возврата
 @Composable
 fun BackButton(onBackButtonClick: () -> Unit) {
-    Image (
+    Image(
         modifier = Modifier
             .height(30.dp)
             .size(7.dp)
@@ -155,7 +155,7 @@ fun FilmusHeaderWithBackButton(onBackButtonClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(16.dp)
-    ){
+    ) {
         BackButton(onBackButtonClick)
 
         Text(
@@ -325,9 +325,9 @@ fun RegistrationTextField(
     )
 
     // Поле с данными
-    var textFieldValue by remember{ fieldValue }
+    var textFieldValue by remember { fieldValue }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val isFocused = remember{ mutableStateOf(true) }
+    val isFocused = remember { mutableStateOf(true) }
 
     BasicTextField(
         modifier = Modifier
@@ -357,7 +357,7 @@ fun RegistrationTextField(
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
-            ){
+            ) {
                 innerTextField()
             }
         },
@@ -400,7 +400,7 @@ fun DateOfBirth(viewModel: RegistrationViewModel) {
                 shape = RoundedCornerShape(10.dp)
             )
             .padding(12.dp)
-    ){
+    ) {
         Text(
             text = viewModel.dateOfBIrthDisplay.value,
             style = TextStyle(
@@ -413,11 +413,11 @@ fun DateOfBirth(viewModel: RegistrationViewModel) {
                 .weight(1f)
                 .fillMaxHeight()
         )
-        Image (
+        Image(
             imageVector = ImageVector.vectorResource(id = R.drawable.date_icon),
             contentDescription = null,
             modifier = Modifier
-                .clickable (
+                .clickable(
                     enabled = true,
                     onClick = {
                         viewModel.isOpenedCalendar.value = true
@@ -448,8 +448,9 @@ fun EmailErrorMessage(viewModel: RegistrationViewModel) {
 // Кнопка Продолжить
 @Composable
 fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -> Unit) {
-    val isEnabled = !viewModel.userName.value.isEmpty() && !viewModel.name.value.isEmpty() && !viewModel.email.value.isEmpty() &&
-            (viewModel.birthDate.value.length > 0)
+    val isEnabled =
+        !viewModel.userName.value.isEmpty() && !viewModel.name.value.isEmpty() && !viewModel.email.value.isEmpty() &&
+                (viewModel.birthDate.value.length > 0)
     Button(
         enabled = isEnabled,
         onClick = {
@@ -472,10 +473,10 @@ fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.continueButton),
             style = TextStyle(
-                color = if(isEnabled) Color.White else WhiteTransparent,
+                color = if (isEnabled) Color.White else WhiteTransparent,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp
             )
@@ -485,7 +486,7 @@ fun ContinueButton(viewModel: RegistrationViewModel, onContinueButtonClick: () -
 
 // Текст внизу экрана
 @Composable
-fun FooterRegistrationText(onLoginClick: ()->Unit) {
+fun FooterRegistrationText(onLoginClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(16.dp)
@@ -503,9 +504,9 @@ fun FooterRegistrationText(onLoginClick: ()->Unit) {
                 fontSize = 17.sp,
                 color = AccentColor,
                 modifier = Modifier
-                    .clickable (
+                    .clickable(
                         enabled = true,
-                        onClick = {onLoginClick()}
+                        onClick = { onLoginClick() }
                     )
             )
         }

@@ -15,20 +15,20 @@ import com.example.mobile_moviescatalog2023.Repository.Review.DeleteReviewApi
 import com.example.mobile_moviescatalog2023.Repository.Review.EditReviewApi
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.GetProfileApi
 import com.example.mobile_moviescatalog2023.Repository.UserProfile.PutProfileApi
-import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.Retrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import retrofit2.create
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.create
 
 class RetrofitImplementation {
     private val retrofit = Retrofit.Builder()
         .client(
             OkHttpClient.Builder()
-                .addInterceptor(HttpLoggingInterceptor().apply{
+                .addInterceptor(HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BODY
                 }).build()
         )

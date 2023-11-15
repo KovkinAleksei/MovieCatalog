@@ -67,9 +67,7 @@ fun SplashScreen(navController: NavController) {
 
     LaunchedEffect(true) {
         navController.navigate(regOrLogScreen) {
-            popUpTo(regOrLogScreen) {
-                inclusive = true
-            }
+            navController.popBackStack()
         }
     }
 }

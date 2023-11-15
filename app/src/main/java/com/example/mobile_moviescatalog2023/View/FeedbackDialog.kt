@@ -14,17 +14,18 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mobile_moviescatalog2023.ViewModel.FeedbackViewModel
 import com.example.mobile_moviescatalog2023.R
+import com.example.mobile_moviescatalog2023.ViewModel.FeedbackViewModel
 import com.example.mobile_moviescatalog2023.ViewModel.MovieDescriptionViewModel
 import com.example.mobile_moviescatalog2023.ui.theme.*
 
@@ -35,13 +36,16 @@ fun FeedbackDialog(descriptionVm: MovieDescriptionViewModel) {
     vm.getValues(descriptionVm.myReview, descriptionVm.movieId.value)
 
     Dialog(
-        onDismissRequest = { /*TODO*/ }
+        onDismissRequest = {
+            descriptionVm.closeFeedbackDialog()
+            vm.cancel()
+        }
     ) {
         Column(
-          modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(6.dp))
-              .background(DarkGray700)
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(6.dp))
+                .background(DarkGray700)
         ) {
             FeedbackLabel()
             RatingStars(vm)
@@ -56,7 +60,7 @@ fun FeedbackDialog(descriptionVm: MovieDescriptionViewModel) {
 @Composable
 fun FeedbackLabel() {
     Text(
-        text = "Оставить отзыв",
+        text = stringResource(id = R.string.leave_review),
         style = TextStyle(
             fontSize = 22.sp,
             color = Color.White,
@@ -77,10 +81,10 @@ fun RatingStars(vm: FeedbackViewModel) {
     ) {
         for (i in 0..9) {
             Image(
-                painter = if (i < vm.rating.value)
-                    painterResource(id = R.drawable.filled_star)
+                imageVector = if (i < vm.rating.value)
+                    ImageVector.vectorResource(id = R.drawable.filled_star)
                 else
-                    painterResource(id = R.drawable.empty_star),
+                    ImageVector.vectorResource(id = R.drawable.empty_star),
                 contentDescription = null,
                 modifier = Modifier
                     .weight(1f)
@@ -97,6 +101,7 @@ fun RatingStars(vm: FeedbackViewModel) {
 }
 
 // Ввод текста отзыва
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun FeedbackText(vm: FeedbackViewModel) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -118,7 +123,7 @@ fun FeedbackText(vm: FeedbackViewModel) {
         placeholder = {
             if (vm.message.value.isEmpty()) {
                 Text(
-                    text = "Напишите отзыв",
+                    text = stringResource(id = R.string.write_review),
                     style = TextStyle(
                         color = Gray90,
                         fontSize = 14.sp
@@ -149,12 +154,12 @@ fun AnonymousFeedback(vm: FeedbackViewModel) {
     Row(
         modifier = Modifier
             .padding(16.dp, 16.dp, 0.dp, 0.dp)
-    ){
+    ) {
         Image(
-            painter = if (!vm.isAnonymous.value)
-                painterResource(id = R.drawable.empty_checkbox)
+            imageVector = if (!vm.isAnonymous.value)
+                ImageVector.vectorResource(id = R.drawable.empty_checkbox)
             else
-                painterResource(id = R.drawable.filled_checkbox),
+                ImageVector.vectorResource(id = R.drawable.filled_checkbox),
             contentDescription = null,
             modifier = Modifier
                 .size(20.dp)
@@ -167,7 +172,7 @@ fun AnonymousFeedback(vm: FeedbackViewModel) {
         )
 
         Text(
-            text = "Анонимный отзыв",
+            text = stringResource(id = R.string.anonymous_review),
             style = TextStyle(
                 color = Color.White,
                 fontSize = 14.sp
@@ -187,8 +192,7 @@ fun FeedbackSaveButton(vm: FeedbackViewModel, descriptionVm: MovieDescriptionVie
     Button(
         enabled = isEnabled,
         onClick = {
-            vm.saveFeedback()
-            descriptionVm.updateFeedback()
+            vm.saveFeedback(descriptionVm)
         },
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -204,7 +208,7 @@ fun FeedbackSaveButton(vm: FeedbackViewModel, descriptionVm: MovieDescriptionVie
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.save),
             style = TextStyle(
                 color = if (isEnabled) Color.White else WhiteTransparent,
@@ -234,7 +238,7 @@ fun FeedbackCancelButton(vm: FeedbackViewModel, descriptionVm: MovieDescriptionV
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.cancel),
             style = TextStyle(
                 color = AccentColor,

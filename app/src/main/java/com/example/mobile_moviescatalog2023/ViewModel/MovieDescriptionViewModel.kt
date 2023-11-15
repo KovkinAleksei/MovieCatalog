@@ -3,18 +3,15 @@ package com.example.mobile_moviescatalog2023.ViewModel
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.mobile_moviescatalog2023.Repository.Movies.Genre
-import com.example.mobile_moviescatalog2023.Repository.Movies.Movie
-import com.example.mobile_moviescatalog2023.Repository.MovieDetails.MovieDetailsResponse
+import com.example.mobile_moviescatalog2023.Domain.MovieDetailsUseCase
 import com.example.mobile_moviescatalog2023.Repository.MovieDetails.ReviewDetails
-import com.example.mobile_moviescatalog2023.Repository.RetrofitImplementation
+import com.example.mobile_moviescatalog2023.Repository.Movies.Genre
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.*
+import java.net.UnknownHostException
 
-class MovieDescriptionViewModel: ViewModel() {
+class MovieDescriptionViewModel : ViewModel() {
     val moviePoster = mutableStateOf("")
     val movieRating = mutableStateOf("")
     val movieName = mutableStateOf("")
@@ -30,148 +27,112 @@ class MovieDescriptionViewModel: ViewModel() {
     val ageLimit = mutableStateOf("")
     val time = mutableStateOf("")
     val reviews: MutableState<List<ReviewDetails>?> = mutableStateOf(null)
-    var isInitialized = mutableStateOf(false)
+    val isInitialized = mutableStateOf(false)
     var isFavorite = mutableStateOf(false)
-    var ourFeedbackIsFound = mutableStateOf(false)
+    var addButtonIsHidden = mutableStateOf(false)
     val isShowingOptions = mutableStateOf(false)
     val isEditingFeedback = mutableStateOf(false)
     var myReview: ReviewDetails? = null
 
-    private var favoriteMoviesList: List<Movie> = listOf()
-    private var userId: String = ""
-    private var movieDetails: MovieDetailsResponse? = null
+    private val movieDetailsUseCase = MovieDetailsUseCase()
 
     // Заполнение экрана значениями
     private fun fillValues() {
-        movieName.value = movieDetails?.name ?: ""
-        moviePoster.value = movieDetails?.poster ?: ""
-        movieId.value = movieDetails?.id ?: ""
-        movieRating.value = getMovieRating(movieDetails?.reviews)
-        description.value = movieDetails?.description ?: ""
-        genres.value = movieDetails?.genres
-        year.value = movieDetails?.year ?: -1
-        country.value = movieDetails?.country ?: ""
-        slogan.value = movieDetails?.tagline ?: ""
-        director.value = movieDetails?.director ?: ""
+        movieName.value = movieDetailsUseCase.movieName
+        moviePoster.value = movieDetailsUseCase.moviePoster
+        movieId.value = movieDetailsUseCase.movieId
+        movieRating.value = movieDetailsUseCase.movieRating
+        description.value = movieDetailsUseCase.description
+        genres.value = movieDetailsUseCase.genres
+        year.value = movieDetailsUseCase.year
+        country.value = movieDetailsUseCase.country
+        slogan.value = movieDetailsUseCase.slogan
+        director.value = movieDetailsUseCase.director
+        budget.value = movieDetailsUseCase.budget
+        fees.value = movieDetailsUseCase.fees
+        ageLimit.value = movieDetailsUseCase.ageLimit
+        time.value = movieDetailsUseCase.time
+        reviews.value = movieDetailsUseCase.reviews
+        isFavorite.value = movieDetailsUseCase.isFavorite
 
-        budget.value = if (movieDetails?.budget != null)
-            "$${NumberFormat.getNumberInstance(Locale.US).format(movieDetails?.budget)}".replace(',', ' ')
-        else
-            ""
-
-        fees.value = if (movieDetails?.fees != null)
-            "$${NumberFormat.getNumberInstance(Locale.US).format(movieDetails?.fees)}".replace(',', ' ')
-        else
-            ""
-
-        ageLimit.value = "${movieDetails?.ageLimit}+"
-        time.value = "${movieDetails?.time} мин."
-        reviews.value = movieDetails?.reviews
+        myReview = movieDetailsUseCase.myReview
+        addButtonIsHidden.value = false
 
         isInitialized.value = true
     }
 
     // Проверка принадлежности отзыва
-    fun isOursFeedback(review: ReviewDetails?) : Boolean {
-        if (review?.author?.userId ?: "" == userId) {
-            ourFeedbackIsFound.value = true
+    fun isOursFeedback(review: ReviewDetails?): Boolean {
+        if (movieDetailsUseCase.isOursFeedback(review)) {
+            addButtonIsHidden.value = true
             myReview = review
-            return true
         }
 
-        return false
-    }
-
-    // Получение данных профиля из Api
-    private suspend fun getProfile() {
-        val profileRetrofit = RetrofitImplementation()
-        val api = profileRetrofit.getProfileImplementation()
-
-        val response = api.getProfile(token = "Bearer ${AuthorizationToken.token}")
-
-        userId = response.id
+        return movieDetailsUseCase.isOursFeedback(review)
     }
 
     // Получение подробной информации о фильме
-    fun getMovieDetails(id: String?, isLoaded: MutableState<Boolean> ) {
-        val retrofit = RetrofitImplementation()
-        val api = retrofit.getMovieDetailsImplementation()
+    fun getMovieDetails(
+        id: String?,
+        isLoaded: MutableState<Boolean>,
+        isConnected: MutableState<Boolean>
+    ) {
+        isInitialized.value = true
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = api.getMovies(id = (id ?: ""), token = "Bearer ${AuthorizationToken.token}")
-            movieDetails = response
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                movieDetailsUseCase.getMovieDetails(id)
+            } catch (e: UnknownHostException) {
+                isConnected.value = false
+                return@launch
+            }
 
             fillValues()
-            getFavoriteMovies(isLoaded)
-            getProfile()
+
+            isConnected.value = true
+            isLoaded.value = true
         }
     }
 
     // Добавление фильма в любимые
     fun addToFavourites() {
-        val retrofit = RetrofitImplementation()
-        val api = retrofit.addFavouriteMovieImplementation()
-
         CoroutineScope(Dispatchers.Default).launch {
-            api.addFavouriteMovie(id = movieDetails?.id ?: "", token = "Bearer ${AuthorizationToken.token}")
-        }
+            try {
+                movieDetailsUseCase.addToFavourites()
+            } catch (e: UnknownHostException) {
+                return@launch
+            }
 
-        isFavorite.value = true
-    }
-
-    // Получение списка любимых фильмов
-    private fun getFavoriteMovies(isLoaded: MutableState<Boolean>) {
-        val retrofit = RetrofitImplementation()
-        val api = retrofit.getFavouriteMoviesImplementation()
-
-        CoroutineScope(Dispatchers.Default).launch {
-            val response = api.getFavoriteMovies(token = "Bearer ${AuthorizationToken.token}")
-            favoriteMoviesList = response.movies
-
-            isFavorite.value = movieDetails?.id in response.movies.map { it -> it.id }
-            isLoaded.value = true
+            isFavorite.value = true
         }
     }
 
     // Удаление фильма из списка любимых
     fun deleteFromFavourites() {
-        val retrofit = RetrofitImplementation()
-        val api = retrofit.deleteFavouriteMoviesImplementation()
-
         CoroutineScope(Dispatchers.Default).launch {
-            api.deleteFavoriteMovies(id = movieDetails?.id ?: "", token = "Bearer ${AuthorizationToken.token}")
+            try {
+                movieDetailsUseCase.deleteFromFavourites()
+            } catch (e: UnknownHostException) {
+                return@launch
+            }
+
+            isFavorite.value = false
         }
-
-        isFavorite.value = false
-    }
-
-    // Подсчёт оценки фильма
-    private fun getMovieRating(reviews: List<ReviewDetails>?): String {
-        if (reviews == null)
-            return "0"
-
-        val avg = reviews.sumOf { it -> it.rating.toDouble() } / reviews.size.toFloat()
-
-        return String.format("%.1f", avg)
     }
 
     // Удаление отзыва
     fun deleteReview() {
-        val retrofit = RetrofitImplementation()
-        val api = retrofit.deleteReviewImplementation()
-
         CoroutineScope(Dispatchers.Default).launch {
-            api.deleteReview(
-                movieId = movieId.value,
-                reviewId = myReview?.id ?: "",
-                token = "Bearer ${AuthorizationToken.token}"
-            )
+            try {
+                movieDetailsUseCase.deleteReview()
+            } catch (e: UnknownHostException) {
+                return@launch
+            }
 
-            myReview = null
-            ourFeedbackIsFound.value = false
+            myReview = movieDetailsUseCase.myReview
+            addButtonIsHidden.value = false
+            updateFeedback()
         }
-
-        updateFeedback()
     }
 
     // Раскрытие действий над отзывом
@@ -188,7 +149,6 @@ class MovieDescriptionViewModel: ViewModel() {
     fun updateFeedback() {
         isShowingOptions.value = false
         isEditingFeedback.value = false
-
         isInitialized.value = false
     }
 

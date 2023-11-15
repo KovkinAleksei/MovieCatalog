@@ -41,7 +41,11 @@ import com.example.mobile_moviescatalog2023.ui.theme.*
 
 // Экран авторизации пользователя
 @Composable
-fun LoginScreen(onBackButtonClick: () -> Unit, onRegistrationClick: () -> Unit, onLoginButtonClick: () -> Unit) {
+fun LoginScreen(
+    onBackButtonClick: () -> Unit,
+    onRegistrationClick: () -> Unit,
+    onLoginButtonClick: () -> Unit
+) {
     val viewModel: LoginViewModel = viewModel()
 
     Column {
@@ -106,9 +110,9 @@ fun LoginUser(viewModel: LoginViewModel) {
     )
 
     // Поле ввода логина
-    var login by remember{ mutableStateOf(TextFieldValue(""))}
+    var login by remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val isFocused = remember{ mutableStateOf(true) }
+    val isFocused = remember { mutableStateOf(true) }
 
     BasicTextField(
         modifier = Modifier
@@ -132,19 +136,19 @@ fun LoginUser(viewModel: LoginViewModel) {
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
-                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
+                    .background(if (viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
                         color = if (viewModel.errorMessage.value == "" && !isFocused.value)
                             Gray5E
-                        else if(viewModel.errorMessage.value == "" && isFocused.value)
+                        else if (viewModel.errorMessage.value == "" && isFocused.value)
                             AccentColor
                         else
                             errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
-            ){
+            ) {
                 innerTextField()
             }
         },
@@ -176,10 +180,10 @@ fun Password(viewModel: LoginViewModel) {
     )
 
     // Поле ввода пароля
-    var password by remember{ mutableStateOf(TextFieldValue(""))}
+    var password by remember { mutableStateOf(TextFieldValue("")) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val showPassword = remember{mutableStateOf(false)}
-    val isFocused = remember{ mutableStateOf(true) }
+    val showPassword = remember { mutableStateOf(false) }
+    val isFocused = remember { mutableStateOf(true) }
 
     BasicTextField(
         modifier = Modifier
@@ -194,7 +198,7 @@ fun Password(viewModel: LoginViewModel) {
             viewModel.isFilledPassword.value = password.text.length > 0
             viewModel.password.value = it.text
             viewModel.errorMessage.value = ""
-                        },
+        },
         visualTransformation = if (showPassword.value) VisualTransformation.None else PasswordVisualTransformation(),
         decorationBox = { innerTextField ->
             Row(
@@ -203,26 +207,26 @@ fun Password(viewModel: LoginViewModel) {
                     .height(55.dp)
                     .padding(16.dp, 8.dp, 16.dp, 0.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
-                    .background(if(viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
+                    .background(if (viewModel.errorMessage.value == "") DarkGray700 else errorTransparent)
                     .border(
                         width = 1.dp,
                         color = if (viewModel.errorMessage.value == "" && !isFocused.value)
                             Gray5E
-                        else if(viewModel.errorMessage.value == "" && isFocused.value)
+                        else if (viewModel.errorMessage.value == "" && isFocused.value)
                             AccentColor
                         else
                             errorColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
-            ){
+            ) {
                 innerTextField()
                 Spacer(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
                 )
-                Image (
+                Image(
                     imageVector = ImageVector.vectorResource(id = R.drawable.open_eye),
                     contentDescription = null,
                     modifier = Modifier
@@ -270,7 +274,7 @@ fun LoginButton(viewModel: LoginViewModel, onLoginButtonClick: () -> Unit) {
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.sign_in),
             style = TextStyle(
                 color = if (isEnabled) Color.White else WhiteTransparent,
@@ -280,7 +284,7 @@ fun LoginButton(viewModel: LoginViewModel, onLoginButtonClick: () -> Unit) {
         )
     }
 
-    if (!viewModel.isLoginAvailable.value){
+    if (!viewModel.isLoginAvailable.value) {
         onLoginButtonClick()
         viewModel.isLoginAvailable.value = true
     }
@@ -288,7 +292,7 @@ fun LoginButton(viewModel: LoginViewModel, onLoginButtonClick: () -> Unit) {
 
 // Текст внизу экрана
 @Composable
-fun FooterText(onRegistrationClick: ()->Unit) {
+fun FooterText(onRegistrationClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(16.dp)
@@ -306,9 +310,9 @@ fun FooterText(onRegistrationClick: ()->Unit) {
                 fontSize = 17.sp,
                 color = AccentColor,
                 modifier = Modifier
-                    .clickable (
+                    .clickable(
                         enabled = true,
-                        onClick = {onRegistrationClick()}
+                        onClick = { onRegistrationClick() }
                     )
             )
         }

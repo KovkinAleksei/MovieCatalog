@@ -9,5 +9,8 @@ import retrofit2.http.Path
 interface MovieDetailsApi {
     @Headers("Content-Type: application/json")
     @GET("movies/details/{id}")
-    suspend fun getMovies(@Path("id") id: String, @Header("Authorization") token: String) : MovieDetailsResponse
+    suspend fun getMovies(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): MovieDetailsResponse
 }

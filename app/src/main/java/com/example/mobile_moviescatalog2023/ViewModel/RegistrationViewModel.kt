@@ -1,13 +1,10 @@
 package com.example.mobile_moviescatalog2023.ViewModel
 
-import android.util.Patterns
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.mobile_moviescatalog2023.Domain.RegistrationUseCase
 
-class RegistrationViewModel: ViewModel() {
-    val isFilledLogin = mutableStateOf(false)
-    val isFilledName = mutableStateOf(false)
-    val isFilledEmail = mutableStateOf(false)
+class RegistrationViewModel : ViewModel() {
     val name = mutableStateOf("")
     val maleSelected = mutableStateOf(true)
     var email = mutableStateOf("")
@@ -18,21 +15,12 @@ class RegistrationViewModel: ViewModel() {
     val userName = mutableStateOf("")
     val errorMessage = mutableStateOf("")
 
-    private fun validateEmail() {
-        errorMessage.value =
-            if (!Patterns.EMAIL_ADDRESS.matcher(email.value).matches())
-                "Email введён некорректно"
-            else
-                ""
-    }
+    private val registrationUseCase = RegistrationUseCase()
 
-    fun continueButtonClick(){
-        validateEmail()
+    // Нажатие кнопки продолжить
+    fun continueButtonClick() {
+        registrationUseCase.saveFirstDataPart(this)
 
-        RegistrationData.birthDate=birthDate.value
-        RegistrationData.gender= if (maleSelected.value) 0 else 1
-        RegistrationData.userName=userName.value
-        RegistrationData.email=email.value
-        RegistrationData.name=name.value
+        errorMessage.value = registrationUseCase.errorMessage
     }
 }

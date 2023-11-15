@@ -8,5 +8,9 @@ import retrofit2.http.Path
 interface DeleteReviewApi {
     @Headers("Content-Type: application/json")
     @DELETE("movie/{movieId}/review/{id}/delete")
-    suspend fun deleteReview(@Path("movieId") movieId: String, @Path("id") reviewId: String, @Header("Authorization") token: String)
+    suspend fun deleteReview(
+        @Path("movieId") movieId: String,
+        @Path("id") reviewId: String,
+        @Header("Authorization") token: String
+    )
 }

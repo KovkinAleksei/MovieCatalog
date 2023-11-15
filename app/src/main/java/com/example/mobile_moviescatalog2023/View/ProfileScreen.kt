@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 
-package com.example.mobile_moviescatalog2023.ui.theme
+package com.example.mobile_moviescatalog2023.View
 
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
@@ -22,14 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -41,9 +39,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.mobile_moviescatalog2023.R
-import com.example.mobile_moviescatalog2023.View.BottomNavBar
-import com.example.mobile_moviescatalog2023.View.LoadingScreen
 import com.example.mobile_moviescatalog2023.ViewModel.ProfileViewModel
+import com.example.mobile_moviescatalog2023.ui.theme.*
 import java.util.*
 
 // Профиль пользователя
@@ -51,13 +48,13 @@ import java.util.*
 @Composable
 fun ProfileScreen(navController: NavController, onExitButtonClick: () -> Unit) {
     val vm: ProfileViewModel = viewModel()
-    val isLodaed = remember { mutableStateOf(false) }
+    val isLoaded = remember { mutableStateOf(false) }
 
     if (!vm.isInitialized) {
-        vm.getProfile(isLodaed)
+        vm.getProfile(isLoaded)
     }
 
-    if (isLodaed.value){
+    if (isLoaded.value) {
         Column {
             Scaffold(
                 bottomBar = {
@@ -84,6 +81,17 @@ fun ProfileScreen(navController: NavController, onExitButtonClick: () -> Unit) {
                 }
             }
         }
+    } else if (vm.connectionFailed) {
+        Column {
+            Scaffold(
+                bottomBar = {
+                    Divider(Modifier.width(1.dp), Gray40)
+                    BottomNavBar(navController)
+                }
+            ) {
+                ConnectionErrorScreen()
+            }
+        }
     }
 }
 
@@ -105,10 +113,9 @@ fun ProfilePicture(vm: ProfileViewModel) {
                     .clip(CircleShape)
                     .align(Alignment.Center)
             )
-        }
-        else {
+        } else {
             Image(
-                painter = painterResource(id = R.drawable.anonimous),
+                imageVector = ImageVector.vectorResource(id = R.drawable.anonymous),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -138,16 +145,16 @@ fun ProfileName(vm: ProfileViewModel) {
 
 // Выход из аккаунта пользователя
 @Composable
-fun Exit(vm: ProfileViewModel, onExitButtonClick: ()->Unit) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-    ){
+fun Exit(vm: ProfileViewModel, onExitButtonClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         Text(
             modifier = Modifier
                 .align(Alignment.Center)
                 .clickable {
-                    vm.exit()
-                    onExitButtonClick()
+                    vm.exit(onExitButtonClick)
                 },
             text = stringResource(id = R.string.exit),
             style = TextStyle(
@@ -210,9 +217,9 @@ fun ProfileTextField(
     )
 
     // Поле с данными
-    var textFieldValue by remember{ fieldValue }
+    var textFieldValue by remember { fieldValue }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val isFocused = remember{ mutableStateOf(true) }
+    val isFocused = remember { mutableStateOf(true) }
 
     BasicTextField(
         modifier = Modifier
@@ -236,14 +243,14 @@ fun ProfileTextField(
                     .background(DarkGray700)
                     .border(
                         width = 1.dp,
-                        color = if(!isFocused.value)
+                        color = if (!isFocused.value)
                             Gray5E
                         else
                             AccentColor,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(12.dp)
-            ){
+            ) {
                 innerTextField()
             }
         },
@@ -365,7 +372,7 @@ fun ProfileCalendar(vm: ProfileViewModel) {
     val displayFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.ROOT)
     val birthDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
 
-    if (vm.isClicked.value){
+    if (vm.isClicked.value) {
         DatePickerDialog(
             colors = DatePickerDefaults.colors(
                 containerColor = Color(0xFF303030)
@@ -378,8 +385,10 @@ fun ProfileCalendar(vm: ProfileViewModel) {
                     onClick = {
                         vm.isClicked.value = false
                         selectedDate = datePickerState.selectedDateMillis!!
-                        vm.dateOfBirthDisplay.value = displayFormatter.format(Date(selectedDate)).replace('-', '.')
-                        vm.birthDate.value = birthDateFormatter.format(Date(selectedDate)).replace('-', '.') + "T13:14:47.274Z"
+                        vm.dateOfBirthDisplay.value =
+                            displayFormatter.format(Date(selectedDate)).replace('-', '.')
+                        vm.birthDate.value =
+                            birthDateFormatter.format(Date(selectedDate)) + "T13:14:47.274Z"
                         vm.checkChanges()
                     }) {
                     Text(text = "Confirm")
@@ -388,12 +397,12 @@ fun ProfileCalendar(vm: ProfileViewModel) {
             dismissButton = {
                 TextButton(
                     onClick = {
-                    vm.isClicked.value = false
-                }) {
+                        vm.isClicked.value = false
+                    }) {
                     Text(text = "Cancel")
                 }
             }
-        ){
+        ) {
             DatePicker(
                 state = datePickerState,
                 Modifier.background(Color(0xFF303030)),
@@ -449,7 +458,7 @@ fun ProfileDateOfBirth(vm: ProfileViewModel) {
                 shape = RoundedCornerShape(10.dp)
             )
             .padding(12.dp)
-    ){
+    ) {
         Text(
             text = vm.dateOfBirthDisplay.value,
             style = TextStyle(
@@ -462,11 +471,11 @@ fun ProfileDateOfBirth(vm: ProfileViewModel) {
                 .weight(1f)
                 .fillMaxHeight()
         )
-        Image (
+        Image(
             imageVector = ImageVector.vectorResource(id = R.drawable.date_icon),
             contentDescription = null,
             modifier = Modifier
-                .clickable (
+                .clickable(
                     enabled = true,
                     onClick = {
                         vm.isClicked.value = true
@@ -489,7 +498,7 @@ fun ProfileSaveButton(vm: ProfileViewModel) {
     Button(
         enabled = isEnabled,
         onClick = {
-                  vm.saveButtonClick()
+            vm.saveButtonClick()
         },
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -505,7 +514,7 @@ fun ProfileSaveButton(vm: ProfileViewModel) {
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.save),
             style = TextStyle(
                 color = if (isEnabled) Color.White else WhiteTransparent,
@@ -542,10 +551,10 @@ fun ProfileCancelButton(vm: ProfileViewModel) {
             pressedElevation = 0.dp
         )
     ) {
-        Text (
+        Text(
             text = stringResource(id = R.string.cancel),
             style = TextStyle(
-                color = if(isEnabled) AccentColor else AccentColorTransparent,
+                color = if (isEnabled) AccentColor else AccentColorTransparent,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 17.sp
             )

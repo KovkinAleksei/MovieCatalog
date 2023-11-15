@@ -2,13 +2,16 @@ package com.example.mobile_moviescatalog2023.View
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.mobile_moviescatalog2023.ui.theme.*
+import com.example.mobile_moviescatalog2023.ui.theme.Gray16
+import com.example.mobile_moviescatalog2023.ui.theme.mainScreen
 
 @Composable
 fun BottomNavBar(
@@ -36,10 +39,10 @@ fun BottomNavBar(
                             popUpTo(mainScreen)
                         }
                     }
-                          },
+                },
                 icon = {
                     Image(
-                        painter = painterResource(id = if (currentRoute == item.route) item.accentIcon else item.defaultIcon),
+                        imageVector = ImageVector.vectorResource(id = if (currentRoute == item.route) item.accentIcon else item.defaultIcon),
                         contentDescription = null
                     )
                 }
