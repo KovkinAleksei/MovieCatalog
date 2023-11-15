@@ -14,4 +14,4 @@ const val loginExistsError = "Пользователь с таким логин�
 const val passwordLengthError = "Длина пароля должна составлять не менее 6 символов."
 const val wrongLoginError = "Неверный логин или пароль."
 const val noConnectionError = "Нет подключения к сети."
-const val emailValidationError = "Email введён некорректно"
+const val emailValidationError = "Email введён некорректно."
