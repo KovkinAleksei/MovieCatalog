@@ -54,7 +54,7 @@ class ProfileViewModel : ViewModel() {
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 profileUseCase.saveProfile(currentVm)
-            } catch (e: UnknownHostException) {
+            } catch (e: Exception) {
                 connectionFailed = true
 
                 return@launch
